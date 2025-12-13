@@ -117,6 +117,7 @@
         .meta-tags {
             display: flex; gap: 10px; margin-top: 20px; opacity: 0;
             transform: translateY(20px); transition: all 0.5s ease;
+            flex-wrap: wrap; justify-content: center;
         }
         .main-stage.show .meta-tags { opacity: 1; transform: translateY(0); }
         .badge {
@@ -125,8 +126,23 @@
             border: 1px solid var(--primary); color: var(--primary); background: var(--chip-bg);
         }
         .badge.highlight { background: var(--primary); color: var(--btn-text); }
+        
+        /* Image Display */
+        .track-img-container {
+            margin-top: 20px; opacity: 0; transform: scale(0.9);
+            transition: all 0.5s ease 0.1s;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-col);
+            max-width: 90%;
+        }
+        .track-img-container img {
+            display: block; max-width: 100%; height: auto; max-height: 350px;
+        }
+        .main-stage.show .track-img-container { opacity: 1; transform: scale(1); }
+
         .conditions {
-            margin-top: 30px; font-size: 1.5rem; font-weight: 300;
+            margin-top: 20px; font-size: 1.5rem; font-weight: 300;
             color: var(--text-muted); opacity: 0; transition: opacity 0.5s ease 0.2s;
         }
         .main-stage.show .conditions { opacity: 1; }
@@ -215,6 +231,7 @@
     <main class="main-stage" id="mainStage">
         <h2 class="track-display" id="resultTitle">READY</h2>
         <div class="meta-tags" id="resultMeta"></div>
+        <div class="track-img-container" id="trackImgBox"></div>
         <div class="conditions" id="resultCond"></div>
     </main>
 </div>
@@ -264,53 +281,99 @@
     }
 
     const rawData = [
-        "Sapporo Turf 2600m (Long) Right Max Runners:14", "Sapporo Turf 2000m (Medium) Right Max Runners:16",
-        "Sapporo Turf 1800m (Mile) Right Max Runners:14", "Sapporo Turf 1500m (Mile) Right Max Runners:14",
-        "Sapporo Turf 1200m (Sprint) Right Max Runners:16", "Sapporo Dirt 1700m (Mile) Right Max Runners:14",
-        "Hakodate Turf 2600m (Long) Right Max Runners:16", "Hakodate Turf 2000m (Medium) Right Max Runners:16",
-        "Hakodate Turf 1800m (Mile) Right Max Runners:16", "Hakodate Turf 1200m (Sprint) Right Max Runners:16",
-        "Hakodate Turf 1000m (Sprint) Right Max Runners:14", "Hakodate Dirt 1700m (Mile) Right Max Runners:14",
-        "Fukushima Turf 2600m (Long) Right Max Runners:16", "Fukushima Turf 2000m (Medium) Right Max Runners:16",
-        "Fukushima Turf 1800m (Mile) Right Max Runners:16", "Fukushima Turf 1200m (Sprint) Right Max Runners:14",
-        "Fukushima Dirt 1700m (Mile) Right Max Runners:15", "Fukushima Dirt 1150m (Sprint) Right Max Runners:16",
-        "Niigata Turf 2400m (Medium) Left/Inner Max Runners:18", "Niigata Turf 2200m (Medium) Left/Inner Max Runners:18",
-        "Niigata Turf 2000m (Medium) Left/Outer Max Runners:18", "Niigata Turf 2000m (Medium) Left/Inner Max Runners:18",
-        "Niigata Turf 1800m (Mile) Left/Outer Max Runners:18", "Niigata Turf 1600m (Mile) Left/Outer Max Runners:18",
-        "Niigata Turf 1400m (Mile) Left/Inner Max Runners:18", "Niigata Turf 1200m (Sprint) Left/Inner Max Runners:18",
-        "Niigata Turf 1000m (Sprint) Stretch Max Runners:18", "Niigata Dirt 1800m (Mile) Left Max Runners:15",
-        "Niigata Dirt 1200m (Sprint) Left Max Runners:15", "Tokyo Turf 3200m (Long) Left Max Runners: 18",
-        "Tokyo Turf 2500m (Long) Left Max Runners: 18", "Tokyo Turf 2400m (Medium) Left Max Runners: 18",
-        "Tokyo Turf 2300m (Medium) Left Max Runners: 18", "Tokyo Turf 2000m (Medium) Left Max Runners: 18",
-        "Tokyo Turf 1800m (Mile) Left Max Runners: 18", "Tokyo Turf 1600m (Mile) Left Max Runners: 18",
-        "Tokyo Turf 1400m (Mile) Left Max Runners: 18", "Tokyo Dirt 2100m (Medium) Left Max Runners:16",
-        "Tokyo Dirt 1600m (Mile) Left Max Runners:16", "Tokyo Dirt 1400m (Sprint) Left Max Runners:16",
-        "Tokyo Dirt 1300m (Sprint) Left Max Runners:16", "Nakayama Turf 3600m (Long) Right/Inner Max Runners:16",
-        "Nakayama Turf 2500m (Long) Right/Inner Max Runners:16", "Nakayama Turf 2200m (Medium) Right/Outer Max Runners:18",
-        "Nakayama Turf 2000m (Medium) Right/Inner Max Runners:18", "Nakayama Turf 1800m (Mile) Right/Inner Max Runners:16",
-        "Nakayama Turf 1600m (Mile) Right/Outer Max Runners:16", "Nakayama Turf 1200m (Sprint) Right/Outer Max Runners:16",
-        "Nakayama Dirt 1800m (Mile) Right Max Runners:16", "Nakayama Dirt 1200m (Sprint) Right Max Runners:16",
-        "Chukyo Turf 2200m (Medium) Left Max Runners:18", "Chukyo Turf 2000m (Medium) Left Max Runners:18",
-        "Chukyo Turf 1600m (Mile) Left Max Runners:16", "Chukyo Turf 1400m (Sprint) Left Max Runners:18",
-        "Chukyo Turf 1200m (Sprint) Left Max Runners:18", "Chukyo Dirt 1800m (Mile) Left Max Runners:16",
-        "Chukyo Dirt 1400m (Sprint) Left Max Runners:16", "Kyoto Turf 3200m (Long) Right/Outer Max Runners:18",
-        "Kyoto Turf 3000m (Long) Right/Outer Max Runners:18", "Kyoto Turf 2400m (Medium) Right/Outer Max Runners:18",
-        "Kyoto Turf 2200m (Medium) Right/Outer Max Runners:18", "Kyoto Turf 2000m (Medium) Right/Inner Max Runners:18",
-        "Kyoto Turf 1800m (Mile) Right/Outer Max Runners:18", "Kyoto Turf 1600m (Mile) Right/Outer Max Runners:18",
-        "Kyoto Turf 1600m (Mile) Right/Inner Max Runners:18", "Kyoto Turf 1400m (Sprint) Right/Outer Max Runners:18",
-        "Kyoto Turf 1400m (Sprint) Right/Inner Max Runners:18", "Kyoto Turf 1200m (Sprint) Right/Inner Max Runners:18",
-        "Kyoto Dirt 1900m (Medium) Right Max Runners:16", "Kyoto Dirt 1800m (Mile) Right Max Runners:16",
-        "Kyoto Dirt 1400m (Sprint) Right Max Runners:16", "Kyoto Dirt 1200m (Sprint) Right Max Runners:16",
-        "Hanshin Turf 3200m (Long) Right/Outer→Inner Max Runners:18", "Hanshin Turf 3000m (Long) Right/Inner Max Runners:16",
-        "Hanshin Turf 2600m (Long) Right/Outer Max Runners:18", "Hanshin Turf 2400m (Medium) Right/Outer Max Runners:18",
-        "Hanshin Turf 2200m (Medium) Right/Inner Max Runners:18", "Hanshin Turf 2000m (Medium) Right/Inner Max Runners:16",
-        "Hanshin Turf 1800m (Mile) Right/Outer Max Runners:18", "Hanshin Turf 1600m (Mile) Right/Outer Max Runners:18",
-        "Hanshin Turf 1400m (Sprint) Right/Inner Max Runners:18", "Hanshin Turf 1200m (Sprint) Right/Inner Max Runners:16",
-        "Hanshin Dirt 2000m (Medium) Right Max Runners:16", "Hanshin Dirt 1800m (Mile) Right Max Runners:16",
-        "Hanshin Dirt 1400m (Sprint) Right Max Runners:16", "Kokura Turf 2600m (Long) Right Max Runners:16",
-        "Kokura Turf 2000m (Medium) Right Max Runners:18", "Kokura Turf 1800m (Mile) Right Max Runners: 16",
-        "Kokura Turf 1200m (Sprint) Right Max Runners:18", "Kokura Dirt 1700m (Mile) Right Max Runners:16",
-        "Oi Dirt 2000m (Medium) Right Max Runners:16", "Oi Dirt 1800m (Mile) Right Max Runners:16",
-        "Oi Dirt 1200m (Sprint) Right Max Runners:16"
+        { id: "Sapporo Turf 2600m (Long) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10105.png" },
+        { id: "Sapporo Turf 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10104.png" },
+        { id: "Sapporo Turf 1800m (Mile) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10103.png" },
+        { id: "Sapporo Turf 1500m (Mile) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10102.png" },
+        { id: "Sapporo Turf 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10101.png" },
+        { id: "Sapporo Dirt 1700m (Mile) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10107.png" },
+        { id: "Hakodate Turf 2600m (Long) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10205.png" },
+        { id: "Hakodate Turf 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10204.png" },
+        { id: "Hakodate Turf 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10203.png" },
+        { id: "Hakodate Turf 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10202.png" },
+        { id: "Hakodate Turf 1000m (Sprint) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10201.png" },
+        { id: "Hakodate Dirt 1700m (Mile) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10207.png" },
+        { id: "Fukushima Turf 2600m (Long) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10404.png" },
+        { id: "Fukushima Turf 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10403.png" },
+        { id: "Fukushima Turf 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10402.png" },
+        { id: "Fukushima Turf 1200m (Sprint) Right Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10401.png" },
+        { id: "Fukushima Dirt 1700m (Mile) Right Max Runners:15", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10406.png" },
+        { id: "Fukushima Dirt 1150m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10405.png" },
+        { id: "Niigata Turf 2400m (Medium) Left/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10309.png" },
+        { id: "Niigata Turf 2200m (Medium) Left/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10308.png" },
+        { id: "Niigata Turf 2000m (Medium) Left/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10307.png" },
+        { id: "Niigata Turf 2000m (Medium) Left/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10306.png" },
+        { id: "Niigata Turf 1800m (Mile) Left/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10305.png" },
+        { id: "Niigata Turf 1600m (Mile) Left/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10304.png" },
+        { id: "Niigata Turf 1400m (Mile) Left/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10303.png" },
+        { id: "Niigata Turf 1200m (Sprint) Left/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10302.png" },
+        { id: "Niigata Turf 1000m (Sprint) Stretch Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10301.png" },
+        { id: "Niigata Dirt 1800m (Mile) Left Max Runners:15", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10311.png" },
+        { id: "Niigata Dirt 1200m (Sprint) Left Max Runners:15", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10310.png" },
+        { id: "Tokyo Turf 3400m (Long) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10608.png" },
+        { id: "Tokyo Turf 2500m (Long) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10607.png" },
+        { id: "Tokyo Turf 2400m (Medium) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10606.png" },
+        { id: "Tokyo Turf 2300m (Medium) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10605.png" },
+        { id: "Tokyo Turf 2000m (Medium) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10604.png" },
+        { id: "Tokyo Turf 1800m (Mile) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10603.png" },
+        { id: "Tokyo Turf 1600m (Mile) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10602.png" },
+        { id: "Tokyo Turf 1400m (Mile) Left Max Runners: 18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10601.png" },
+        { id: "Tokyo Dirt 2100m (Medium) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10612.png" },
+        { id: "Tokyo Dirt 1600m (Mile) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10611.png" },
+        { id: "Tokyo Dirt 1400m (Sprint) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10610.png" },
+        { id: "Tokyo Dirt 1300m (Sprint) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10609.png" },
+        { id: "Nakayama Turf 3600m (Long) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10507.png" },
+        { id: "Nakayama Turf 2500m (Long) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10506.png" },
+        { id: "Nakayama Turf 2200m (Medium) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10505.png" },
+        { id: "Nakayama Turf 2000m (Medium) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10504.png" },
+        { id: "Nakayama Turf 1800m (Mile) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10503.png" },
+        { id: "Nakayama Turf 1600m (Mile) Right/Outer Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10502.png" },
+        { id: "Nakayama Turf 1200m (Sprint) Right/Outer Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10501.png" },
+        { id: "Nakayama Dirt 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10509.png" },
+        { id: "Nakayama Dirt 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10508.png" },
+        { id: "Chukyo Turf 2200m (Medium) Left Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10705.png" },
+        { id: "Chukyo Turf 2000m (Medium) Left Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10704.png" },
+        { id: "Chukyo Turf 1600m (Mile) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10703.png" },
+        { id: "Chukyo Turf 1400m (Sprint) Left Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10702.png" },
+        { id: "Chukyo Turf 1200m (Sprint) Left Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10701.png" },
+        { id: "Chukyo Dirt 1800m (Mile) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10708.png" },
+        { id: "Chukyo Dirt 1400m (Sprint) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10707.png" },
+        { id: "Kyoto Turf 3200m (Long) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10811.png" },
+        { id: "Kyoto Turf 3000m (Long) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10810.png" },
+        { id: "Kyoto Turf 2400m (Medium) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10809.png" },
+        { id: "Kyoto Turf 2200m (Medium) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10808.png" },
+        { id: "Kyoto Turf 2000m (Medium) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10807.png" },
+        { id: "Kyoto Turf 1800m (Mile) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10806.png" },
+        { id: "Kyoto Turf 1600m (Mile) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10805.png" },
+        { id: "Kyoto Turf 1600m (Mile) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10804.png" },
+        { id: "Kyoto Turf 1400m (Sprint) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10803.png" },
+        { id: "Kyoto Turf 1400m (Sprint) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10802.png" },
+        { id: "Kyoto Turf 1200m (Sprint) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10801.png" },
+        { id: "Kyoto Dirt 1900m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10815.png" },
+        { id: "Kyoto Dirt 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10814.png" },
+        { id: "Kyoto Dirt 1400m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10813.png" },
+        { id: "Kyoto Dirt 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10008/10812.png" },
+        { id: "Hanshin Turf 3200m (Long) Right/Outer→Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10914.png" },
+        { id: "Hanshin Turf 3000m (Long) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10909.png" },
+        { id: "Hanshin Turf 2600m (Long) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10908.png" },
+        { id: "Hanshin Turf 2400m (Medium) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10907.png" },
+        { id: "Hanshin Turf 2200m (Medium) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10906.png" },
+        { id: "Hanshin Turf 2000m (Medium) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10905.png" },
+        { id: "Hanshin Turf 1800m (Mile) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10904.png" },
+        { id: "Hanshin Turf 1600m (Mile) Right/Outer Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10903.png" },
+        { id: "Hanshin Turf 1400m (Sprint) Right/Inner Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10902.png" },
+        { id: "Hanshin Turf 1200m (Sprint) Right/Inner Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10901.png" },
+        { id: "Hanshin Dirt 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10913.png" },
+        { id: "Hanshin Dirt 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10912.png" },
+        { id: "Hanshin Dirt 1400m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10911.png" },
+        { id: "Kokura Turf 2600m (Long) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11004.png" },
+        { id: "Kokura Turf 2000m (Medium) Right Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11003.png" },
+        { id: "Kokura Turf 1800m (Mile) Right Max Runners: 16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11002.png" },
+        { id: "Kokura Turf 1200m (Sprint) Right Max Runners:18", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11001.png" },
+        { id: "Kokura Dirt 1700m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11006.png" },
+        { id: "Oi Dirt 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11103.png" },
+        { id: "Oi Dirt 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11102.png" },
+        { id: "Oi Dirt 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11101.png" }
     ];
 
     const seasons = ["Spring", "Summer", "Fall", "Winter"];
@@ -318,7 +381,8 @@
     const snowyWeather = ["Snowy / Good", "Snowy / Soft"];
 
     function parseTracks(data) {
-        return data.map(line => {
+        return data.map(entry => {
+            const line = entry.id;
             const parts = line.split(" ");
             const location = parts[0]; const surface = parts[1]; const distance = parts[2];
             const category = (line.match(/\((.*?)\)/) || [])[1] || "";
@@ -329,9 +393,10 @@
             if(dirMatch) fullDirection = dirMatch[0];
             const maxRunners = (line.match(/Max Runners:\s*(\d+)/) || [])[1];
             return {
-                name: `${location} ${surface} ${distance}`, surface, distance, category,
+                name: `${location} ${surface} ${distance}`, surface, distance, category, location,
                 direction: fullDirection.includes("Left") ? "Left" : fullDirection.includes("Stretch") ? "Stretch" : "Right",
-                fullDirection, maxRunners: maxRunners ? parseInt(maxRunners) : 16
+                fullDirection, maxRunners: maxRunners ? parseInt(maxRunners) : 16,
+                img: entry.img
             };
         });
     }
@@ -343,6 +408,7 @@
         Audio.init();
         const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
         const title = document.getElementById('resultTitle');
+        const imgBox = document.getElementById('trackImgBox');
         const terrain = getCheckedValues('terrainFilter');
         const cat = getCheckedValues('catFilter');
         const dir = getCheckedValues('dirFilter');
@@ -356,6 +422,7 @@
         if(pool.length === 0) { title.innerText = "NO MATCHES"; stage.classList.remove('show'); return; }
 
         btn.disabled = true; btn.innerText = "Rolling..."; stage.classList.remove('show'); stage.classList.add('rolling');
+        imgBox.innerHTML = '';
         let counter = 0; const maxIter = 25; let speed = 50;
         function step() {
             title.innerText = pool[Math.floor(Math.random() * pool.length)].name;
@@ -373,12 +440,16 @@
         const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
         const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
         const cond = document.getElementById('resultCond');
+        const imgBox = document.getElementById('trackImgBox');
+
         const finalTrack = pool[Math.floor(Math.random() * pool.length)];
         const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
         const availableWeather = finalSeason === "Winter" ? nonSnowyWeather.concat(snowyWeather) : nonSnowyWeather;
         const finalWeather = availableWeather[Math.floor(Math.random() * availableWeather.length)];
 
         stage.classList.remove('rolling'); title.innerText = finalTrack.name;
+        imgBox.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
+
         meta.innerHTML = `
             <span class="badge">${finalTrack.surface}</span> <span class="badge">${finalTrack.distance}</span>
             <span class="badge">${finalTrack.category}</span> <span class="badge">${finalTrack.fullDirection}</span>
