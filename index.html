@@ -6,61 +6,48 @@
     <title>Uma Musume Track Selector</title>
     <style>
         :root {
-            --bg-grad-start: #0f172a;
-            --bg-grad-end: #1e1b4b;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --border-col: rgba(148, 163, 184, 0.1);
-            --primary: #10b981;
-            --primary-glow: rgba(16, 185, 129, 0.4);
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --chip-bg: rgba(255,255,255,0.05);
-            --btn-text: #fff;
+            --bg-grad-start: #0f172a; --bg-grad-end: #1e1b4b;
+            --glass-bg: rgba(30, 41, 59, 0.7); --border-col: rgba(148, 163, 184, 0.1);
+            --primary: #10b981; --primary-glow: rgba(16, 185, 129, 0.4);
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --chip-bg: rgba(255,255,255,0.05); --btn-text: #fff;
         }
-
-        /* RAM */
         [data-theme="ram"] {
             --bg-grad-start: #fff1f2; --bg-grad-end: #ffe4e6;
             --glass-bg: rgba(255, 255, 255, 0.85); --border-col: rgba(244, 63, 94, 0.2);
             --primary: #f43f5e; --primary-glow: rgba(244, 63, 94, 0.3);
             --text-main: #881337; --text-muted: #be123c; --chip-bg: rgba(244, 63, 94, 0.05);
         }
-        /* REM */
         [data-theme="rem"] {
             --bg-grad-start: #f0f9ff; --bg-grad-end: #e0f2fe;
             --glass-bg: rgba(255, 255, 255, 0.85); --border-col: rgba(14, 165, 233, 0.2);
             --primary: #0ea5e9; --primary-glow: rgba(14, 165, 233, 0.3);
             --text-main: #0c4a6e; --text-muted: #0369a1; --chip-bg: rgba(14, 165, 233, 0.05);
         }
-        /* MIKU */
         [data-theme="miku"] {
             --bg-grad-start: #111827; --bg-grad-end: #134e4a;
             --glass-bg: rgba(17, 24, 39, 0.8); --border-col: rgba(45, 212, 191, 0.2);
             --primary: #2dd4bf; --primary-glow: rgba(45, 212, 191, 0.4);
             --text-main: #ccfbf1; --text-muted: #5eead4; --chip-bg: rgba(45, 212, 191, 0.1);
         }
-        /* TETO */
         [data-theme="teto"] {
             --bg-grad-start: #1c1917; --bg-grad-end: #450a0a;
             --glass-bg: rgba(28, 25, 23, 0.8); --border-col: rgba(225, 29, 72, 0.2);
             --primary: #e11d48; --primary-glow: rgba(225, 29, 72, 0.4);
             --text-main: #ffe4e6; --text-muted: #fda4af; --chip-bg: rgba(225, 29, 72, 0.1);
         }
-        /* CAPPUCHIN */
         [data-theme="cappuchin"] {
             --bg-grad-start: #432818; --bg-grad-end: #5e3c27;
             --glass-bg: rgba(255, 248, 236, 0.95); --border-col: rgba(127, 85, 57, 0.2);
             --primary: #9c6644; --primary-glow: rgba(156, 102, 68, 0.3);
             --text-main: #432818; --text-muted: #7f5539; --chip-bg: rgba(156, 102, 68, 0.1);
         }
-        /* MACCHIATO */
         [data-theme="macchiato"] {
             --bg-grad-start: #24273a; --bg-grad-end: #1e2030;
             --glass-bg: rgba(36, 39, 58, 0.8); --border-col: rgba(183, 189, 248, 0.1);
             --primary: #c6a0f6; --primary-glow: rgba(198, 160, 246, 0.4);
             --text-main: #cad3f5; --text-muted: #939ab7; --chip-bg: rgba(198, 160, 246, 0.1);
         }
-        /* AUTUMN */
         [data-theme="autumn"] {
             --bg-grad-start: #4c1d95; --bg-grad-end: #7c2d12;
             --glass-bg: rgba(255, 255, 255, 0.9); --border-col: rgba(124, 45, 18, 0.2);
@@ -72,10 +59,8 @@
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
-            height: 100vh; margin: 0;
-            color: var(--text-main);
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+            height: 100vh; margin: 0; color: var(--text-main);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
         .dashboard {
             display: grid; grid-template-columns: 320px 1fr; gap: 20px;
@@ -235,6 +220,7 @@
 </div>
 
 <script>
+    const STORAGE_KEY = 'uma_track_selector';
     const Audio = {
         ctx: null,
         init: function() {
@@ -274,6 +260,7 @@
     function changeTheme() {
         const theme = document.getElementById('themeSelect').value;
         theme === 'default' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', theme);
+        saveState();
     }
 
     const rawData = [
@@ -424,6 +411,49 @@
         }
         animate();
     }
+
+    function saveState() {
+        const state = {
+            theme: document.getElementById('themeSelect').value,
+            terrain: getCheckedValues('terrainFilter'),
+            cat: getCheckedValues('catFilter'),
+            dir: getCheckedValues('dirFilter'),
+            caps: getCheckedValues('capFilter')
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+            const state = JSON.parse(saved);
+            if(state.theme) {
+                document.getElementById('themeSelect').value = state.theme;
+                changeTheme();
+            }
+            const setChecks = (id, values) => {
+                if(!values) return;
+                document.querySelectorAll(`#${id} input`).forEach(cb => {
+                    cb.checked = values.includes(cb.value);
+                });
+            };
+            setChecks('terrainFilter', state.terrain);
+            setChecks('catFilter', state.cat);
+            setChecks('dirFilter', state.dir);
+            setChecks('capFilter', state.caps);
+        } catch (e) {
+            console.error("Failed to load state", e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadState();
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', saveState);
+        });
+    });
+
 </script>
 </body>
 </html>
