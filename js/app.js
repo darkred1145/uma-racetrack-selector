@@ -1,0 +1,191 @@
+const STORAGE_KEY = 'uma_track_selector';
+const Audio = {
+    ctx: null,
+    init: function() {
+        if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+        if (this.ctx.state === 'suspended') { this.ctx.resume(); }
+    },
+    playTick: function() {
+        if(!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+    },
+    playFanfare: function() {
+        if(!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; 
+        notes.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth'; osc.frequency.value = freq;
+            const startTime = now + (i * 0.08); const stopTime = startTime + 0.8;
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, stopTime);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(startTime); osc.stop(stopTime);
+        });
+    }
+};
+
+function changeTheme() {
+    const theme = document.getElementById('themeSelect').value;
+    theme === 'default' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', theme);
+    saveState();
+}
+
+const seasons = ["Spring", "Summer", "Fall", "Winter"];
+const nonSnowyWeather = ["Sunny / Firm", "Sunny / Good", "Cloudy / Firm", "Cloudy / Good", "Rainy / Soft", "Rainy / Heavy"];
+const snowyWeather = ["Snowy / Good", "Snowy / Soft"];
+
+function parseTracks(data) {
+    return data.map(entry => {
+        const line = entry.id;
+        const parts = line.split(" ");
+        const location = parts[0]; const surface = parts[1]; const distance = parts[2];
+        const category = (line.match(/\((.*?)\)/) || [])[1] || "";
+        let fullDirection = "Right";
+        if(line.includes("Left")) fullDirection="Left";
+        if(line.includes("Stretch")) fullDirection="Stretch";
+        const dirMatch = line.match(/(Right|Left|Stretch)[\/\w\u2192]*/);
+        if(dirMatch) fullDirection = dirMatch[0];
+        const maxRunners = (line.match(/Max Runners:\s*(\d+)/) || [])[1];
+        return {
+            name: `${location} ${surface} ${distance}`, surface, distance, category, location,
+            direction: fullDirection.includes("Left") ? "Left" : fullDirection.includes("Stretch") ? "Stretch" : "Right",
+            fullDirection, maxRunners: maxRunners ? parseInt(maxRunners) : 16,
+            img: entry.img
+        };
+    });
+}
+
+const allTracks = parseTracks(rawData);
+function getCheckedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value); }
+
+function startRoll() {
+    Audio.init();
+    const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
+    const title = document.getElementById('resultTitle');
+    const imgBox = document.getElementById('trackImgBox');
+    const terrain = getCheckedValues('terrainFilter');
+    const cat = getCheckedValues('catFilter');
+    const dir = getCheckedValues('dirFilter');
+    const caps = getCheckedValues('capFilter').map(Number);
+
+    const pool = allTracks.filter(t => 
+        terrain.includes(t.surface) && cat.includes(t.category) && 
+        dir.some(d => t.direction.includes(d)) && caps.includes(t.maxRunners)
+    );
+
+    if(pool.length === 0) { title.innerText = "NO MATCHES"; stage.classList.remove('show'); return; }
+
+    btn.disabled = true; btn.innerText = "Rolling..."; stage.classList.remove('show'); stage.classList.add('rolling');
+    imgBox.innerHTML = '';
+    let counter = 0; const maxIter = 25; let speed = 50;
+    function step() {
+        title.innerText = pool[Math.floor(Math.random() * pool.length)].name;
+        Audio.playTick();
+        if(counter < maxIter) {
+            counter++;
+            if(counter > 15) speed += 20; if(counter > 20) speed += 40;
+            setTimeout(step, speed);
+        } else { finalize(pool); }
+    }
+    step();
+}
+
+function finalize(pool) {
+    const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
+    const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
+    const cond = document.getElementById('resultCond');
+    const imgBox = document.getElementById('trackImgBox');
+
+    const finalTrack = pool[Math.floor(Math.random() * pool.length)];
+    const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
+    const availableWeather = finalSeason === "Winter" ? nonSnowyWeather.concat(snowyWeather) : nonSnowyWeather;
+    const finalWeather = availableWeather[Math.floor(Math.random() * availableWeather.length)];
+
+    stage.classList.remove('rolling'); title.innerText = finalTrack.name;
+    imgBox.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
+
+    meta.innerHTML = `
+        <span class="badge">${finalTrack.surface}</span> <span class="badge">${finalTrack.distance}</span>
+        <span class="badge">${finalTrack.category}</span> <span class="badge">${finalTrack.fullDirection}</span>
+        <span class="badge highlight">Max: ${finalTrack.maxRunners}</span>
+    `;
+    cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
+    stage.classList.add('show');
+    fireConfetti(); Audio.playFanfare();
+    setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
+}
+
+function fireConfetti() {
+    const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const particles = Array.from({length: 80}, () => ({
+        x: window.innerWidth/2, y: window.innerHeight/2, r: Math.random()*6+2,
+        dx: (Math.random()-0.5)*25, dy: (Math.random()-0.5)*25, color: color, life: 100
+    }));
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height); let active = false;
+        particles.forEach(p => {
+            if(p.life > 0) {
+                active = true; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life/100; ctx.fill();
+                p.x+=p.dx; p.y+=p.dy; p.dy+=0.5; p.life--; p.r*=0.96;
+            }
+        });
+        if(active) requestAnimationFrame(animate); else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    animate();
+}
+
+function saveState() {
+    const state = {
+        theme: document.getElementById('themeSelect').value,
+        terrain: getCheckedValues('terrainFilter'),
+        cat: getCheckedValues('catFilter'),
+        dir: getCheckedValues('dirFilter'),
+        caps: getCheckedValues('capFilter')
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    try {
+        const state = JSON.parse(saved);
+        if(state.theme) {
+            document.getElementById('themeSelect').value = state.theme;
+            changeTheme();
+        }
+        const setChecks = (id, values) => {
+            if(!values) return;
+            document.querySelectorAll(`#${id} input`).forEach(cb => {
+                cb.checked = values.includes(cb.value);
+            });
+        };
+        setChecks('terrainFilter', state.terrain);
+        setChecks('catFilter', state.cat);
+        setChecks('dirFilter', state.dir);
+        setChecks('capFilter', state.caps);
+    } catch (e) {
+        console.error("Failed to load state", e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('change', saveState);
+    });
+});
