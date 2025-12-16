@@ -227,13 +227,20 @@ function loadState() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
+    
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
+    
     const muteBtn = document.getElementById('muteBtn');
     if(muteBtn) muteBtn.addEventListener('click', toggleMute);
+    
     const copyBtn = document.getElementById('copyBtn');
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
-    document.querySelectorAll('input, select').forEach(el => {
+
+    const themeSelect = document.getElementById('themeSelect');
+    if(themeSelect) themeSelect.addEventListener('change', changeTheme);
+
+    document.querySelectorAll('input').forEach(el => {
         el.addEventListener('change', saveState);
     });
 });
