@@ -41,12 +41,6 @@
     --primary: #c6a0f6; --primary-glow: rgba(198, 160, 246, 0.4);
     --text-main: #cad3f5; --text-muted: #939ab7; --chip-bg: rgba(198, 160, 246, 0.1);
 }
-[data-theme="autumn"] {
-    --bg-grad-start: #4c1d95; --bg-grad-end: #7c2d12;
-    --glass-bg: rgba(255, 255, 255, 0.9); --border-col: rgba(124, 45, 18, 0.2);
-    --primary: #ea580c; --primary-glow: rgba(234, 88, 12, 0.4);
-    --text-main: #4c1d95; --text-muted: #7c2d12; --chip-bg: rgba(234, 88, 12, 0.1);
-}
 
 * { box-sizing: border-box; }
 body {
@@ -160,4 +154,5 @@ body {
     }
     .sidebar { border-right: none; border-top: 1px solid var(--border-col); padding-top: 20px; }
     .track-display { font-size: 2rem; }
+
 }
