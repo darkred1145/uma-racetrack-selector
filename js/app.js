@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'uma_track_selector';
 let isMuted = localStorage.getItem('uma_mute') === 'true';
 
-const Audio = {
+const SoundController = {
     ctx: null,
     init: function() {
         if (isMuted) return;
@@ -42,7 +42,7 @@ function toggleMute() {
     isMuted = !isMuted;
     localStorage.setItem('uma_mute', isMuted);
     updateMuteIcon();
-    if(!isMuted) Audio.init();
+    if(!isMuted) SoundController.init();
 }
 
 function updateMuteIcon() {
@@ -95,7 +95,7 @@ const allTracks = typeof rawData !== 'undefined' ? parseTracks(rawData) : [];
 function getCheckedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value); }
 
 function startRoll() {
-    if(!isMuted) Audio.init();
+    if(!isMuted) SoundController.init();
     const btn = document.getElementById('rollBtn'); 
     const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle');
@@ -122,7 +122,7 @@ function startRoll() {
     let counter = 0; const maxIter = 25; let speed = 50;
     function step() {
         title.innerText = pool[Math.floor(Math.random() * pool.length)].name;
-        Audio.playTick();
+        SoundController.playTick();
         if(counter < maxIter) {
             counter++;
             if(counter > 15) speed += 20; if(counter > 20) speed += 40;
@@ -158,7 +158,7 @@ function finalize(pool) {
     `;
     cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
     stage.classList.add('show');
-    fireConfetti(); Audio.playFanfare();
+    fireConfetti(); SoundController.playFanfare();
     setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
 }
 
@@ -212,7 +212,6 @@ function handleEasterEgg(key) {
 
 function unlockTheme(themeId, themeName) {
     const select = document.getElementById('themeSelect');
-    // Check if option exists
     if(!select.querySelector(`option[value="${themeId}"]`)) {
         const opt = document.createElement('option');
         opt.value = themeId;
@@ -220,7 +219,6 @@ function unlockTheme(themeId, themeName) {
         select.appendChild(opt);
         alert(`🎉 Unlocked Secret Theme: ${themeName}!`);
     }
-    // Switch to it
     select.value = themeId;
     changeTheme();
 }
@@ -251,7 +249,6 @@ function loadState() {
     try {
         const state = JSON.parse(saved);
         
-        // If saved theme is a secret one, we need to inject it first
         if (state.theme === 'nature') unlockTheme('nature', 'Nice Nature (Bronze)');
         if (state.theme === 'hina') unlockTheme('hina', 'Hina (Purple)');
 
