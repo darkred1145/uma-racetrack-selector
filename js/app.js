@@ -195,6 +195,43 @@ function fireConfetti() {
     animate();
 }
 
+let keyBuffer = "";
+
+function handleEasterEgg(key) {
+    keyBuffer += key.toUpperCase();
+    if(keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
+
+    if(keyBuffer.endsWith("NATURE")) { unlockTheme("nature", "Nice Nature (Bronze)"); }
+    if(keyBuffer.endsWith("NEURO")) { playEasterSound("sounds/heart.mp3"); keyBuffer = ""; }
+    if(keyBuffer.endsWith("RACC")) { 
+        unlockTheme("hina", "Hina (Purple)"); 
+        playEasterSound("sounds/hina.mp3"); 
+        keyBuffer = "";
+    }
+}
+
+function unlockTheme(themeId, themeName) {
+    const select = document.getElementById('themeSelect');
+    // Check if option exists
+    if(!select.querySelector(`option[value="${themeId}"]`)) {
+        const opt = document.createElement('option');
+        opt.value = themeId;
+        opt.innerText = `✨ ${themeName} ✨`;
+        select.appendChild(opt);
+        alert(`🎉 Unlocked Secret Theme: ${themeName}!`);
+    }
+    // Switch to it
+    select.value = themeId;
+    changeTheme();
+}
+
+function playEasterSound(path) {
+    if(isMuted) return;
+    const audio = new Audio(path);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log("Audio play blocked", e));
+}
+
 function saveState() {
     const state = {
         theme: document.getElementById('themeSelect').value,
@@ -213,6 +250,11 @@ function loadState() {
     if (!saved) return;
     try {
         const state = JSON.parse(saved);
+        
+        // If saved theme is a secret one, we need to inject it first
+        if (state.theme === 'nature') unlockTheme('nature', 'Nice Nature (Bronze)');
+        if (state.theme === 'hina') unlockTheme('hina', 'Hina (Purple)');
+
         if(state.theme) {
             document.getElementById('themeSelect').value = state.theme;
             changeTheme();
@@ -243,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const copyBtn = document.getElementById('copyBtn');
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
-    
+
     const themeSelect = document.getElementById('themeSelect');
     if(themeSelect) {
         themeSelect.addEventListener('change', changeTheme);
@@ -251,5 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('input').forEach(el => {
         el.addEventListener('change', saveState);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.target.tagName === 'INPUT') return;
+        handleEasterEgg(e.key);
     });
 });
