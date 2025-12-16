@@ -1,12 +1,15 @@
 const STORAGE_KEY = 'uma_track_selector';
+let isMuted = localStorage.getItem('uma_mute') === 'true';
+
 const Audio = {
     ctx: null,
     init: function() {
+        if (isMuted) return;
         if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
         if (this.ctx.state === 'suspended') { this.ctx.resume(); }
     },
     playTick: function() {
-        if(!this.ctx) return;
+        if(isMuted || !this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
@@ -18,7 +21,7 @@ const Audio = {
         osc.start(); osc.stop(this.ctx.currentTime + 0.05);
     },
     playFanfare: function() {
-        if(!this.ctx) return;
+        if(isMuted || !this.ctx) return;
         const now = this.ctx.currentTime;
         const notes = [523.25, 659.25, 783.99, 1046.50]; 
         notes.forEach((freq, i) => {
@@ -34,6 +37,21 @@ const Audio = {
         });
     }
 };
+
+function toggleMute() {
+    isMuted = !isMuted;
+    localStorage.setItem('uma_mute', isMuted);
+    updateMuteIcon();
+    if(!isMuted) Audio.init();
+}
+
+function updateMuteIcon() {
+    const btn = document.getElementById('muteBtn');
+    if(btn) {
+        btn.innerText = isMuted ? '🔇' : '🔊';
+        btn.style.opacity = isMuted ? '0.5' : '1';
+    }
+}
 
 function changeTheme() {
     const theme = document.getElementById('themeSelect').value;
@@ -66,14 +84,16 @@ function parseTracks(data) {
     });
 }
 
-const allTracks = parseTracks(rawData);
+const allTracks = typeof rawData !== 'undefined' ? parseTracks(rawData) : [];
 function getCheckedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value); }
 
 function startRoll() {
-    Audio.init();
-    const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
+    if(!isMuted) Audio.init();
+    const btn = document.getElementById('rollBtn'); 
+    const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle');
-    const imgBox = document.getElementById('trackImgBox');
+    const imgTarget = document.getElementById('imgTarget');
+    const copyBtn = document.getElementById('copyBtn');
     const terrain = getCheckedValues('terrainFilter');
     const cat = getCheckedValues('catFilter');
     const dir = getCheckedValues('dirFilter');
@@ -86,8 +106,12 @@ function startRoll() {
 
     if(pool.length === 0) { title.innerText = "NO MATCHES"; stage.classList.remove('show'); return; }
 
-    btn.disabled = true; btn.innerText = "Rolling..."; stage.classList.remove('show'); stage.classList.add('rolling');
-    imgBox.innerHTML = '';
+    copyBtn.style.display = 'none';
+    btn.disabled = true; btn.innerText = "GATE IN..."; 
+    stage.classList.remove('show'); 
+    stage.classList.add('rolling');
+    imgTarget.innerHTML = '';
+    
     let counter = 0; const maxIter = 25; let speed = 50;
     function step() {
         title.innerText = pool[Math.floor(Math.random() * pool.length)].name;
@@ -98,22 +122,27 @@ function startRoll() {
             setTimeout(step, speed);
         } else { finalize(pool); }
     }
-    step();
+    setTimeout(step, 300);
 }
+
+let currentResult = null;
 
 function finalize(pool) {
     const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
     const cond = document.getElementById('resultCond');
-    const imgBox = document.getElementById('trackImgBox');
+    const imgTarget = document.getElementById('imgTarget');
 
     const finalTrack = pool[Math.floor(Math.random() * pool.length)];
     const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
     const availableWeather = finalSeason === "Winter" ? nonSnowyWeather.concat(snowyWeather) : nonSnowyWeather;
     const finalWeather = availableWeather[Math.floor(Math.random() * availableWeather.length)];
 
-    stage.classList.remove('rolling'); title.innerText = finalTrack.name;
-    imgBox.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
+    currentResult = { track: finalTrack.name, season: finalSeason, weather: finalWeather };
+
+    stage.classList.remove('rolling'); 
+    title.innerText = finalTrack.name;
+    imgTarget.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
 
     meta.innerHTML = `
         <span class="badge">${finalTrack.surface}</span> <span class="badge">${finalTrack.distance}</span>
@@ -124,6 +153,17 @@ function finalize(pool) {
     stage.classList.add('show');
     fireConfetti(); Audio.playFanfare();
     setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
+}
+
+function copyToClipboard() {
+    if(!currentResult) return;
+    const text = `🏆 TRACK: ${currentResult.track}\n📅 COND: ${currentResult.season} / ${currentResult.weather}`;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "✅ Copied!";
+        setTimeout(() => btn.innerText = originalText, 2000);
+    }).catch(err => { console.error('Failed to copy:', err); });
 }
 
 function fireConfetti() {
@@ -154,12 +194,14 @@ function saveState() {
         terrain: getCheckedValues('terrainFilter'),
         cat: getCheckedValues('catFilter'),
         dir: getCheckedValues('dirFilter'),
-        caps: getCheckedValues('capFilter')
+        caps: getCheckedValues('capFilter'),
+        muted: isMuted
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function loadState() {
+    updateMuteIcon();
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
     try {
@@ -185,6 +227,12 @@ function loadState() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
+    const rollBtn = document.getElementById('rollBtn');
+    if(rollBtn) rollBtn.addEventListener('click', startRoll);
+    const muteBtn = document.getElementById('muteBtn');
+    if(muteBtn) muteBtn.addEventListener('click', toggleMute);
+    const copyBtn = document.getElementById('copyBtn');
+    if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
     document.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('change', saveState);
     });
