@@ -54,8 +54,15 @@ function updateMuteIcon() {
 }
 
 function changeTheme() {
-    const theme = document.getElementById('themeSelect').value;
-    theme === 'default' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', theme);
+    const themeSelect = document.getElementById('themeSelect');
+    if(!themeSelect) return;
+    
+    const theme = themeSelect.value;
+    if(theme === 'default') {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
     saveState();
 }
 
@@ -236,8 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const copyBtn = document.getElementById('copyBtn');
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
+    
+    const themeSelect = document.getElementById('themeSelect');
+    if(themeSelect) {
+        themeSelect.addEventListener('change', changeTheme);
+    }
 
-    document.querySelectorAll('input, select').forEach(el => {
+    document.querySelectorAll('input').forEach(el => {
         el.addEventListener('change', saveState);
     });
 });
