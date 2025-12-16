@@ -58,11 +58,11 @@
     color-scheme: dark;
 }
 [data-theme="nature"] {
-    --bg-grad-start: #451a03; --bg-grad-end: #7c2d12;
-    --glass-bg: rgba(69, 26, 3, 0.85); --border-col: rgba(234, 88, 12, 0.3);
-    --primary: #fb923c; --primary-glow: rgba(251, 146, 60, 0.4);
-    --text-main: #ffedd5; --text-muted: #fdba74; --chip-bg: rgba(251, 146, 60, 0.1);
-    --option-bg: #451a03; --option-text: #ffedd5;
+    --bg-grad-start: #0c3823; --bg-grad-end: #2b1d18;
+    --glass-bg: rgba(25, 35, 30, 0.85); --border-col: rgba(184, 134, 11, 0.3);
+    --primary: #c74e3c; --primary-glow: rgba(199, 78, 60, 0.4);
+    --text-main: #fefce0; --text-muted: #d4cfa3; --chip-bg: rgba(254, 252, 224, 0.1);
+    --option-bg: #19231e; --option-text: #fefce0;
     color-scheme: dark;
 }
 [data-theme="hina"] {
@@ -283,4 +283,5 @@ body {
     .track-display { font-size: 2rem; }
     .track-img-container { height: 250px; }
 }
+
 
