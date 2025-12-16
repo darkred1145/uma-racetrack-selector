@@ -5,27 +5,41 @@
     --text-main: #f1f5f9; --text-muted: #94a3b8;
     --chip-bg: rgba(255,255,255,0.05); --btn-text: #fff;
     --option-bg: #1e293b; --option-text: #f1f5f9;
+    color-scheme: dark;
 }
+
 [data-theme="ram"] {
     --bg-grad-start: #fff1f2; --bg-grad-end: #ffe4e6;
-    --glass-bg: rgba(255, 255, 255, 0.85); --border-col: rgba(244, 63, 94, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.9); --border-col: rgba(244, 63, 94, 0.2);
     --primary: #f43f5e; --primary-glow: rgba(244, 63, 94, 0.3);
-    --text-main: #881337; --text-muted: #be123c; --chip-bg: rgba(244, 63, 94, 0.05);
+    --text-main: #881337; --text-muted: #be123c; --chip-bg: rgba(244, 63, 94, 0.1);
     --option-bg: #fff1f2; --option-text: #881337;
+    color-scheme: light;
 }
 [data-theme="rem"] {
     --bg-grad-start: #f0f9ff; --bg-grad-end: #e0f2fe;
-    --glass-bg: rgba(255, 255, 255, 0.85); --border-col: rgba(14, 165, 233, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.9); --border-col: rgba(14, 165, 233, 0.2);
     --primary: #0ea5e9; --primary-glow: rgba(14, 165, 233, 0.3);
-    --text-main: #0c4a6e; --text-muted: #0369a1; --chip-bg: rgba(14, 165, 233, 0.05);
+    --text-main: #0c4a6e; --text-muted: #0369a1; --chip-bg: rgba(14, 165, 233, 0.1);
     --option-bg: #f0f9ff; --option-text: #0c4a6e;
+    color-scheme: light;
 }
+[data-theme="cappuchin"] {
+    --bg-grad-start: #fdf6e3; --bg-grad-end: #eee8d5;
+    --glass-bg: rgba(255, 255, 255, 0.9); --border-col: rgba(127, 85, 57, 0.2);
+    --primary: #9c6644; --primary-glow: rgba(156, 102, 68, 0.3);
+    --text-main: #432818; --text-muted: #7f5539; --chip-bg: rgba(156, 102, 68, 0.1);
+    --option-bg: #fdf6e3; --option-text: #432818;
+    color-scheme: light;
+}
+
 [data-theme="miku"] {
     --bg-grad-start: #111827; --bg-grad-end: #134e4a;
     --glass-bg: rgba(17, 24, 39, 0.8); --border-col: rgba(45, 212, 191, 0.2);
     --primary: #2dd4bf; --primary-glow: rgba(45, 212, 191, 0.4);
     --text-main: #ccfbf1; --text-muted: #5eead4; --chip-bg: rgba(45, 212, 191, 0.1);
     --option-bg: #111827; --option-text: #ccfbf1;
+    color-scheme: dark;
 }
 [data-theme="teto"] {
     --bg-grad-start: #1c1917; --bg-grad-end: #450a0a;
@@ -33,13 +47,7 @@
     --primary: #e11d48; --primary-glow: rgba(225, 29, 72, 0.4);
     --text-main: #ffe4e6; --text-muted: #fda4af; --chip-bg: rgba(225, 29, 72, 0.1);
     --option-bg: #1c1917; --option-text: #ffe4e6;
-}
-[data-theme="cappuchin"] {
-    --bg-grad-start: #432818; --bg-grad-end: #5e3c27;
-    --glass-bg: rgba(255, 248, 236, 0.95); --border-col: rgba(127, 85, 57, 0.2);
-    --primary: #9c6644; --primary-glow: rgba(156, 102, 68, 0.3);
-    --text-main: #432818; --text-muted: #7f5539; --chip-bg: rgba(156, 102, 68, 0.1);
-    --option-bg: #fff8ec; --option-text: #432818;
+    color-scheme: dark;
 }
 [data-theme="macchiato"] {
     --bg-grad-start: #24273a; --bg-grad-end: #1e2030;
@@ -47,6 +55,7 @@
     --primary: #c6a0f6; --primary-glow: rgba(198, 160, 246, 0.4);
     --text-main: #cad3f5; --text-muted: #939ab7; --chip-bg: rgba(198, 160, 246, 0.1);
     --option-bg: #24273a; --option-text: #cad3f5;
+    color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -57,6 +66,7 @@ body {
     margin: 0; color: var(--text-main);
     display: flex; align-items: center; justify-content: center;
     overflow-x: hidden;
+    transition: background 0.3s;
 }
 
 .dashboard {
@@ -64,67 +74,50 @@ body {
     grid-template-columns: 320px 1fr; 
     gap: 20px;
     width: 95vw; 
-    height: 90vh;
-    max-height: 900px;
+    height: 90vh; 
+    max-height: 900px; 
     min-height: 600px;
     max-width: 1400px;
     background: var(--glass-bg); backdrop-filter: blur(20px);
     border: 1px solid var(--border-col); border-radius: 20px;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); padding: 20px; position: relative;
-    overflow: hidden;
+    overflow: hidden; 
 }
 
 .sidebar {
-    display: flex; 
-    flex-direction: column; 
-    height: 100%;
+    display: flex; flex-direction: column; height: 100%;
     border-right: 1px solid var(--border-col); padding-right: 20px; 
     overflow: hidden;
 }
 
 .sidebar-header {
     flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid var(--border-col);
-    padding-bottom: 15px;
-    margin-bottom: 10px;
+    padding-bottom: 15px; margin-bottom: 10px;
 }
 
 .scroll-area {
     flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 5px;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    overflow-y: auto; padding-right: 5px;
+    min-height: 0; display: flex; flex-direction: column; gap: 15px;
 }
-
 .scroll-area::-webkit-scrollbar { width: 6px; }
 .scroll-area::-webkit-scrollbar-track { background: transparent; }
 .scroll-area::-webkit-scrollbar-thumb { background: var(--border-col); border-radius: 3px; }
 
 .sidebar-footer {
-    flex-shrink: 0;
-    margin-top: 15px;
-    border-top: 1px solid var(--border-col);
-    padding-top: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-shrink: 0; margin-top: 15px;
+    border-top: 1px solid var(--border-col); padding-top: 15px;
+    display: flex; flex-direction: column; gap: 10px;
 }
 
 .logo-area h1 {
     font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;
-    color: var(--primary);
-    display: inline-block; padding-bottom: 5px; line-height: 1.4;
+    color: var(--primary); display: inline-block; padding-bottom: 5px; line-height: 1.4;
 }
 
-.control-group { 
-    background: rgba(0,0,0,0.05); padding: 12px; border-radius: 12px; 
-}
+.control-group { background: rgba(0,0,0,0.05); padding: 12px; border-radius: 12px; }
 
 .label {
     display: block; font-size: 0.7rem; font-weight: 700;
@@ -145,14 +138,10 @@ body {
 
 .theme-select {
     width: 100%; padding: 8px; background: var(--chip-bg);
-    border: 1px solid var(--border-col); 
-    color: var(--text-main);
+    border: 1px solid var(--border-col); color: var(--text-main);
     border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-top: 5px;
 }
-.theme-select option { 
-    background-color: var(--option-bg); 
-    color: var(--option-text); 
-}
+.theme-select option { background-color: var(--option-bg); color: var(--option-text); }
 
 .main-stage {
     display: flex; flex-direction: column; justify-content: center;
@@ -187,15 +176,21 @@ body {
 .badge.highlight { background: var(--primary); color: var(--btn-text); }
 
 .track-img-container {
-    margin-top: 20px; opacity: 0; transform: scale(0.9);
+    margin-top: 20px; 
+    opacity: 0; 
+    transform: scale(0.9);
     transition: all 0.5s ease 0.1s;
-    border-radius: 12px; overflow: hidden;
+    border-radius: 12px; 
+    overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     border: 1px solid var(--border-col);
-    max-width: 90%;
+    width: 100%; 
+    max-width: 600px;
+    height: 350px;
     position: relative;
-    width: 100%; max-height: 350px;
+    background: rgba(0,0,0,0.1);
 }
+
 .gate-door {
     position: absolute; top: 0; bottom: 0; width: 50%;
     background: #1e293b; z-index: 10;
@@ -210,7 +205,12 @@ body {
 .main-stage.show .gate-door.left { transform: scaleX(0); }
 .main-stage.show .gate-door.right { transform: scaleX(0); }
 
-#imgTarget img { display: block; width: 100%; height: auto; object-fit: cover; }
+#imgTarget img { 
+    display: block; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain;
+}
 .main-stage.show .track-img-container { opacity: 1; transform: scale(1); }
 
 .conditions {
@@ -221,8 +221,7 @@ body {
 .cond-hl { color: var(--text-main); font-weight: 600; border-bottom: 2px solid var(--primary); }
 
 .roll-btn {
-    width: 100%;
-    padding: 15px; border: none; border-radius: 12px;
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
     background: var(--primary); color: var(--btn-text); font-size: 1.2rem;
     font-weight: 800; text-transform: uppercase; cursor: pointer;
     box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
@@ -266,4 +265,5 @@ body {
     }
     .scroll-area { overflow-y: visible; flex-grow: 0; }
     .track-display { font-size: 2rem; }
+    .track-img-container { height: 250px; }
 }
