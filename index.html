@@ -27,56 +27,61 @@
             </div>
             <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
         </div>
-        <div class="control-group">
-            <span class="label">Theme</span>
-            <select class="theme-select" id="themeSelect">
-                <option value="default">Default (Dark)</option>
-                <option value="ram">Ram (Pink/White)</option>
-                <option value="rem">Rem (Blue/White)</option>
-                <option value="miku">Miku (Teal/Dark)</option>
-                <option value="teto">Teto (Red/Charcoal)</option>
-                <option value="cappuchin">Cappuchin (Coffee)</option>
-                <option value="macchiato">Macchiato (Pastel/Dark)</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <span class="label">Surface</span>
-            <div class="chip-grid" id="terrainFilter">
-                <label class="chip"><input type="checkbox" value="Turf" checked><span>Turf</span></label>
-                <label class="chip"><input type="checkbox" value="Dirt" checked><span>Dirt</span></label>
-            </div>
-        </div>
-        <div class="control-group">
-            <span class="label">Distance</span>
-            <div class="chip-grid" id="catFilter">
-                <label class="chip"><input type="checkbox" value="Sprint" checked><span>Sprint</span></label>
-                <label class="chip"><input type="checkbox" value="Mile" checked><span>Mile</span></label>
-                <label class="chip"><input type="checkbox" value="Medium" checked><span>Medium</span></label>
-                <label class="chip"><input type="checkbox" value="Long" checked><span>Long</span></label>
-            </div>
-        </div>
-        <div class="control-group">
-            <span class="label">Direction</span>
-            <div class="chip-grid" id="dirFilter">
-                <label class="chip"><input type="checkbox" value="Right" checked><span>Right</span></label>
-                <label class="chip"><input type="checkbox" value="Left" checked><span>Left</span></label>
-                <label class="chip"><input type="checkbox" value="Stretch" checked><span>Straight</span></label>
-            </div>
-        </div>
-        <div class="control-group">
-            <span class="label">Track Capacity (Max Runners)</span>
-            <div class="chip-grid" id="capFilter">
-                <label class="chip"><input type="checkbox" value="18" checked><span>18</span></label>
-                <label class="chip"><input type="checkbox" value="16" checked><span>16</span></label>
-                <label class="chip"><input type="checkbox" value="15" checked><span>15</span></label>
-                <label class="chip"><input type="checkbox" value="14" checked><span>14</span></label>
-            </div>
-        </div>
-        <button class="roll-btn" id="rollBtn">ROLL TRACK</button>
 
-        <footer class="credits">
-            Preview Art by <a href="https://www.pixiv.net/en/users/312420" target="_blank">@新米(ｱｯﾃﾝﾎﾞﾛｰP)</a>
-        </footer>
+        <div class="scroll-area">
+            <div class="control-group">
+                <span class="label">Theme</span>
+                <select class="theme-select" id="themeSelect" onchange="changeTheme()">
+                    <option value="default">Default (Dark)</option>
+                    <option value="ram">Ram (Pink/White)</option>
+                    <option value="rem">Rem (Blue/White)</option>
+                    <option value="miku">Miku (Teal/Dark)</option>
+                    <option value="teto">Teto (Red/Charcoal)</option>
+                    <option value="cappuchin">Cappuchin (Coffee)</option>
+                    <option value="macchiato">Macchiato (Pastel/Dark)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <span class="label">Surface</span>
+                <div class="chip-grid" id="terrainFilter">
+                    <label class="chip"><input type="checkbox" value="Turf" checked><span>Turf</span></label>
+                    <label class="chip"><input type="checkbox" value="Dirt" checked><span>Dirt</span></label>
+                </div>
+            </div>
+            <div class="control-group">
+                <span class="label">Distance</span>
+                <div class="chip-grid" id="catFilter">
+                    <label class="chip"><input type="checkbox" value="Sprint" checked><span>Sprint</span></label>
+                    <label class="chip"><input type="checkbox" value="Mile" checked><span>Mile</span></label>
+                    <label class="chip"><input type="checkbox" value="Medium" checked><span>Medium</span></label>
+                    <label class="chip"><input type="checkbox" value="Long" checked><span>Long</span></label>
+                </div>
+            </div>
+            <div class="control-group">
+                <span class="label">Direction</span>
+                <div class="chip-grid" id="dirFilter">
+                    <label class="chip"><input type="checkbox" value="Right" checked><span>Right</span></label>
+                    <label class="chip"><input type="checkbox" value="Left" checked><span>Left</span></label>
+                    <label class="chip"><input type="checkbox" value="Stretch" checked><span>Straight</span></label>
+                </div>
+            </div>
+            <div class="control-group">
+                <span class="label">Track Capacity (Max Runners)</span>
+                <div class="chip-grid" id="capFilter">
+                    <label class="chip"><input type="checkbox" value="18" checked><span>18</span></label>
+                    <label class="chip"><input type="checkbox" value="16" checked><span>16</span></label>
+                    <label class="chip"><input type="checkbox" value="15" checked><span>15</span></label>
+                    <label class="chip"><input type="checkbox" value="14" checked><span>14</span></label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <button class="roll-btn" id="rollBtn">ROLL TRACK</button>
+            <footer class="credits">
+                Preview Art by <a href="https://www.pixiv.net/en/users/312420" target="_blank">@新米(ｱｯﾃﾝﾎﾞﾛｰP)</a>
+            </footer>
+        </div>
     </aside>
 
     <main class="main-stage" id="mainStage">
