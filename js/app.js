@@ -237,10 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyBtn = document.getElementById('copyBtn');
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
 
-    const themeSelect = document.getElementById('themeSelect');
-    if(themeSelect) themeSelect.addEventListener('change', changeTheme);
-
-    document.querySelectorAll('input').forEach(el => {
+    document.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('change', saveState);
     });
 });
