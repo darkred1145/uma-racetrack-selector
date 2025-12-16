@@ -10,13 +10,8 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://darkred1145.github.io/uma-racetrack-selector/">
     <meta property="og:title" content="Uma Musume Track Selector 🏆">
-    <meta property="og:description" content="A fan-made tool to randomize racetracks and conditions for Uma Musume. Features custom filters (Surface, Distance, Direction), winter snow logic, and auto-save functionality.">
+    <meta property="og:description" content="A fan-made tool to randomize racetracks and conditions for Uma Musume.">
     <meta property="og:image" content="https://darkred1145.github.io/uma-racetrack-selector/social-preview.png">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Uma Musume Track Selector 🏆">
-    <meta name="twitter:description" content="A fan-made tool to randomize racetracks and conditions for Uma Musume. Features custom filters, winter snow logic, and auto-save functionality.">
-    <meta name="twitter:image" content="https://darkred1145.github.io/uma-racetrack-selector/social-preview.png">
 
     <meta name="theme-color" content="#10b981">
 </head>
@@ -26,12 +21,15 @@
 
 <div class="dashboard">
     <aside class="sidebar">
-        <div class="logo-area">
-            <h1>Uma Musume<br>Track Selector</h1>
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <h1>Uma Musume<br>Track Selector</h1>
+            </div>
+            <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
         </div>
         <div class="control-group">
             <span class="label">Theme</span>
-            <select class="theme-select" id="themeSelect" onchange="changeTheme()">
+            <select class="theme-select" id="themeSelect">
                 <option value="default">Default (Dark)</option>
                 <option value="ram">Ram (Pink/White)</option>
                 <option value="rem">Rem (Blue/White)</option>
@@ -74,7 +72,7 @@
                 <label class="chip"><input type="checkbox" value="14" checked><span>14</span></label>
             </div>
         </div>
-        <button class="roll-btn" id="rollBtn" onclick="startRoll()">ROLL TRACK</button>
+        <button class="roll-btn" id="rollBtn">ROLL TRACK</button>
 
         <footer class="credits">
             Preview Art by <a href="https://www.pixiv.net/en/users/312420" target="_blank">@新米(ｱｯﾃﾝﾎﾞﾛｰP)</a>
@@ -83,9 +81,14 @@
 
     <main class="main-stage" id="mainStage">
         <h2 class="track-display" id="resultTitle">READY</h2>
+        <button id="copyBtn" class="copy-btn" style="display: none;">📋 Copy Setup</button>
         <div class="meta-tags" id="resultMeta"></div>
         
-        <div class="track-img-container" id="trackImgBox"></div>
+        <div class="track-img-container" id="trackImgBox">
+            <div class="gate-door left"></div>
+            <div class="gate-door right"></div>
+            <div id="imgTarget"></div>
+        </div>
         
         <div class="conditions" id="resultCond"></div>
     </main>
@@ -94,5 +97,4 @@
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
 </body>
-
 </html>
