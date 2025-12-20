@@ -1,6 +1,12 @@
 const STORAGE_KEY = 'uma_track_selector';
 let isMuted = localStorage.getItem('uma_mute') === 'true';
 
+const SECRET_THEMES_INFO = {
+    "nature": "✨ Nice Nature (Bronze) ✨",
+    "hina": "✨ Hina (Purple) ✨"
+};
+let unlockedThemes = []; 
+
 const SoundController = {
     ctx: null,
     init: function() {
@@ -201,10 +207,10 @@ function handleEasterEgg(key) {
     keyBuffer += key.toUpperCase();
     if(keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
 
-    if(keyBuffer.endsWith("NATURE")) { unlockTheme("nature", "Nice Nature (Bronze)"); }
+    if(keyBuffer.endsWith("NATURE")) { unlockTheme("nature", SECRET_THEMES_INFO.nature); }
     if(keyBuffer.endsWith("NEURO")) { playEasterSound("sounds/heart.mp3"); keyBuffer = ""; }
     if(keyBuffer.endsWith("RACC")) { 
-        unlockTheme("hina", "Hina (Purple)"); 
+        unlockTheme("hina", SECRET_THEMES_INFO.hina); 
         playEasterSound("sounds/hina.mp3"); 
         keyBuffer = "";
     }
@@ -212,13 +218,23 @@ function handleEasterEgg(key) {
 
 function unlockTheme(themeId, themeName) {
     const select = document.getElementById('themeSelect');
+
     if(!select.querySelector(`option[value="${themeId}"]`)) {
         const opt = document.createElement('option');
         opt.value = themeId;
-        opt.innerText = `✨ ${themeName} ✨`;
+        opt.innerText = themeName;
         select.appendChild(opt);
-        alert(`🎉 Unlocked Secret Theme: ${themeName}!`);
+ 
+        if(!unlockedThemes.includes(themeId)) {
+            alert(`🎉 Unlocked Secret Theme: ${themeName}!`);
+        }
     }
+
+    if(!unlockedThemes.includes(themeId)) {
+        unlockedThemes.push(themeId);
+        saveState();
+    }
+
     select.value = themeId;
     changeTheme();
 }
@@ -237,7 +253,8 @@ function saveState() {
         cat: getCheckedValues('catFilter'),
         dir: getCheckedValues('dirFilter'),
         caps: getCheckedValues('capFilter'),
-        muted: isMuted
+        muted: isMuted,
+        unlocked: unlockedThemes
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -246,16 +263,33 @@ function loadState() {
     updateMuteIcon();
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
+    
     try {
         const state = JSON.parse(saved);
-        
-        if (state.theme === 'nature') unlockTheme('nature', 'Nice Nature (Bronze)');
-        if (state.theme === 'hina') unlockTheme('hina', 'Hina (Purple)');
+
+        if (state.unlocked && Array.isArray(state.unlocked)) {
+            unlockedThemes = state.unlocked;
+
+            const select = document.getElementById('themeSelect');
+            unlockedThemes.forEach(themeId => {
+                if (!select.querySelector(`option[value="${themeId}"]`)) {
+                    const opt = document.createElement('option');
+                    opt.value = themeId;
+                    opt.innerText = SECRET_THEMES_INFO[themeId] || themeId;
+                    select.appendChild(opt);
+                }
+            });
+        }
 
         if(state.theme) {
-            document.getElementById('themeSelect').value = state.theme;
-            changeTheme();
+            const select = document.getElementById('themeSelect');
+            // Verify option exists to prevent errors
+            if(select.querySelector(`option[value="${state.theme}"]`)) {
+                select.value = state.theme;
+                changeTheme();
+            }
         }
+
         const setChecks = (id, values) => {
             if(!values) return;
             document.querySelectorAll(`#${id} input`).forEach(cb => {
@@ -266,6 +300,7 @@ function loadState() {
         setChecks('catFilter', state.cat);
         setChecks('dirFilter', state.dir);
         setChecks('capFilter', state.caps);
+
     } catch (e) {
         console.error("Failed to load state", e);
     }
