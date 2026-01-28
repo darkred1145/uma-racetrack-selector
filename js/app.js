@@ -254,16 +254,28 @@ function playEasterSound(path) {
     audio.play().catch(e => console.log("Audio play blocked", e));
 }
 
-/* --- UPDATED: BIGGER NICE NATURE JUMPSCARE LOGIC --- */
-
 function triggerNiceNatureEvent() {
     if (document.getElementById('nn-jumpscare')) return;
 
+    // 1. Create the Audio object but don't play yet
     const audio = new Audio('sounds/oisu.mp3');
-    // Louder volume for impact
     audio.volume = isMuted ? 0 : 1.0; 
 
-    // Create Container - Full screen overlay, centered
+    // 2. Create the Image object first to start loading
+    const img = document.createElement('img');
+    img.src = 'nn_plush.png';
+    
+    // Style the image
+    Object.assign(img.style, {
+        height: '90vh', 
+        maxHeight: '90vw',
+        objectFit: 'contain',
+        filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
+        transform: 'scale(0)', // Start invisible
+        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' // Faster, snappier pop
+    });
+
+    // 3. Create the Container
     const container = document.createElement('div');
     container.id = 'nn-jumpscare';
     Object.assign(container.style, {
@@ -272,57 +284,60 @@ function triggerNiceNatureEvent() {
         left: '0',
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'rgba(0,0,0,0.6)', // Dark overlay
+        backgroundColor: 'rgba(0,0,0,0.6)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: '11000', // Very high z-index
-        pointerEvents: 'none'
+        zIndex: '11000',
+        pointerEvents: 'none',
+        opacity: '0', // Start container invisible too
+        transition: 'opacity 0.1s linear'
     });
 
-    // Create Image - Much bigger, starts scaled down to 0
-    const img = document.createElement('img');
-    img.src = 'nn_plush.png';
-    Object.assign(img.style, {
-        height: '90vh', // Very big
-        maxHeight: '90vw',
-        objectFit: 'contain',
-        filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
-        transform: 'scale(0)', // Start invisible
-        // Very bouncy, sudden transition
-        transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' 
-    });
-    
     container.appendChild(img);
     document.body.appendChild(container);
 
-    const startScare = () => {
-        // Scale up rapidly
+    // 4. Define the start logic
+    const executeScare = () => {
+        // Show container
+        container.style.opacity = '1';
+        
+        // Play Audio
+        const playPromise = audio.play();
+
+        // Pop the image immediately
         requestAnimationFrame(() => {
             img.style.transform = 'scale(1)';
         });
 
-        // Handle Audio End -> Scale out
+        // Handle Cleanup
         audio.onended = () => {
             img.style.transform = 'scale(0)';
-            // Wait for transition before removing
-            setTimeout(() => container.remove(), 600);
+            setTimeout(() => container.remove(), 300);
         };
-        
-        // Fallback safety
-        audio.play().catch(e => {
-            console.warn("Autoplay blocked, running silent visual", e);
-            setTimeout(() => {
-                if(img.parentNode) {
-                   img.style.transform = 'scale(0)';
-                   setTimeout(() => container.remove(), 600); 
-                }
-            }, 2500); 
-        });
+
+        // Fallback if audio fails
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn("Audio blocked:", error);
+                // Still show visual scare for 2.5s if audio is blocked
+                setTimeout(() => {
+                    img.style.transform = 'scale(0)';
+                    setTimeout(() => container.remove(), 300);
+                }, 2500);
+            });
+        }
     };
 
-    // Slight delay before the shock
-    setTimeout(startScare, 100);
+    // 5. WAIT for image to load before triggering anything
+    if (img.complete) {
+        // Image already cached? Go immediately.
+        executeScare();
+    } else {
+        // Not loaded? Wait for it.
+        img.onload = executeScare;
+        img.onerror = () => { console.error("Failed to load nn_plush.png"); container.remove(); };
+    }
 }
 
 function checkStartupEvent() {
@@ -430,3 +445,4 @@ document.addEventListener('DOMContentLoaded', () => {
         handleEasterEgg(e.key);
     });
 });
+
