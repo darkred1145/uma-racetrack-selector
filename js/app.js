@@ -201,6 +201,8 @@ function fireConfetti() {
     animate();
 }
 
+/* --- EASTER EGG LOGIC --- */
+
 let keyBuffer = "";
 
 function handleEasterEgg(key) {
@@ -212,6 +214,12 @@ function handleEasterEgg(key) {
     if(keyBuffer.endsWith("RACC")) { 
         unlockTheme("hina", SECRET_THEMES_INFO.hina); 
         playEasterSound("sounds/hina.mp3"); 
+        keyBuffer = "";
+    }
+    
+    // NEW: Manual Trigger for Nice Nature Event
+    if(keyBuffer.endsWith("NEICHA")) {
+        triggerNiceNatureEvent();
         keyBuffer = "";
     }
 }
@@ -245,6 +253,84 @@ function playEasterSound(path) {
     audio.volume = 0.5;
     audio.play().catch(e => console.log("Audio play blocked", e));
 }
+
+/* --- NEW: NICE NATURE JUMPSCARE LOGIC --- */
+
+function triggerNiceNatureEvent() {
+    // Prevent multiple instances stacking
+    if (document.getElementById('nn-jumpscare')) return;
+
+    // Create Audio
+    const audio = new Audio('sounds/oisu.mp3');
+    // Mute if app is muted, otherwise fairly loud
+    audio.volume = isMuted ? 0 : 0.8; 
+
+    // Create Image Container
+    const container = document.createElement('div');
+    container.id = 'nn-jumpscare';
+    
+    // Style: Fixed at bottom, initially hidden off-screen
+    Object.assign(container.style, {
+        position: 'fixed',
+        bottom: '-100vh', 
+        left: '50%',
+        transform: 'translateX(-50%)', 
+        zIndex: '10000',
+        transition: 'bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', // Bouncy
+        pointerEvents: 'none'
+    });
+
+    const img = document.createElement('img');
+    img.src = 'nn_plush.png';
+    img.style.height = '50vh'; // Good visible size
+    img.style.filter = 'drop-shadow(0 0 20px rgba(0,0,0,0.5))';
+    
+    container.appendChild(img);
+    document.body.appendChild(container);
+
+    const startScare = () => {
+        // Pop up
+        requestAnimationFrame(() => {
+            container.style.bottom = '-20px'; // Peek up
+        });
+
+        // Handle Audio End -> Slide down
+        audio.onended = () => {
+            container.style.bottom = '-100vh';
+            setTimeout(() => container.remove(), 600);
+        };
+        
+        // Safety: If audio fails/blocks, remove after delay so it doesn't get stuck
+        audio.play().catch(e => {
+            console.warn("Autoplay blocked, running silent visual", e);
+            setTimeout(() => {
+                if(container.parentNode) {
+                   container.style.bottom = '-100vh';
+                   setTimeout(() => container.remove(), 600); 
+                }
+            }, 2000); // Approximate length fallback
+        });
+    };
+
+    startScare();
+}
+
+function checkStartupEvent() {
+    const hasVisited = localStorage.getItem('uma_has_visited');
+    
+    // Trigger if: First visit EVER -or- 10% RNG check passes
+    if (!hasVisited || Math.random() < 0.10) {
+        // Small delay to ensure DOM is ready and user is looking
+        setTimeout(triggerNiceNatureEvent, 1500);
+    }
+
+    // Mark as visited so next time it relies on RNG
+    if (!hasVisited) {
+        localStorage.setItem('uma_has_visited', 'true');
+    }
+}
+
+/* --- STATE MANAGEMENT & INIT --- */
 
 function saveState() {
     const state = {
@@ -283,7 +369,6 @@ function loadState() {
 
         if(state.theme) {
             const select = document.getElementById('themeSelect');
-            // Verify option exists to prevent errors
             if(select.querySelector(`option[value="${state.theme}"]`)) {
                 select.value = state.theme;
                 changeTheme();
@@ -308,6 +393,9 @@ function loadState() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
+    
+    // Run the Jumpscare Check
+    checkStartupEvent();
     
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
