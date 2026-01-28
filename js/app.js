@@ -41,6 +41,35 @@ const SoundController = {
             osc.connect(gain); gain.connect(this.ctx.destination);
             osc.start(startTime); osc.stop(stopTime);
         });
+    },
+    // --- NEW: Jackpot Sound (File + Synth Fallback) ---
+    playJackpot: function() {
+        if(isMuted) return;
+        
+        const audio = new Audio('sounds/jackpot.mp3');
+        audio.volume = 0.7;
+        
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Fallback: 8-bit winning sound
+                if(!this.ctx) return;
+                const now = this.ctx.currentTime;
+                // Rapid high notes
+                [1200, 1500, 1800, 1200, 1500, 1800, 2400].forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'square'; osc.frequency.value = freq;
+                    const t = now + (i * 0.1);
+                    gain.gain.setValueAtTime(0, t);
+                    gain.gain.linearRampToValueAtTime(0.1, t + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(t); osc.stop(t + 0.1);
+                });
+            });
+        }
     }
 };
 
@@ -80,7 +109,9 @@ function parseTracks(data) {
     return data.map(entry => {
         const line = entry.id;
         const parts = line.split(" ");
-        const location = parts[0]; const surface = parts[1]; const distance = parts[2];
+        // parts[0] is typically the Location (e.g., "Kokura", "Tokyo")
+        const location = parts[0]; 
+        const surface = parts[1]; const distance = parts[2];
         const category = (line.match(/\((.*?)\)/) || [])[1] || "";
         let fullDirection = "Right";
         if(line.includes("Left")) fullDirection="Left";
@@ -127,6 +158,7 @@ function startRoll() {
     
     let counter = 0; const maxIter = 25; let speed = 50;
     function step() {
+        // Resetting innerText also clears any previous GIF
         title.innerText = pool[Math.floor(Math.random() * pool.length)].name;
         SoundController.playTick();
         if(counter < maxIter) {
@@ -154,7 +186,10 @@ function finalize(pool) {
     currentResult = { track: finalTrack.name, season: finalSeason, weather: finalWeather };
 
     stage.classList.remove('rolling'); 
+    
+    // Set basic text
     title.innerText = finalTrack.name;
+    
     imgTarget.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
 
     meta.innerHTML = `
@@ -164,7 +199,24 @@ function finalize(pool) {
     `;
     cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
     stage.classList.add('show');
-    fireConfetti(); SoundController.playFanfare();
+    
+    fireConfetti(); 
+    
+    // --- UPDATED: KOKURA JACKPOT CHECK ---
+    if (finalTrack.location === "Kokura" || finalTrack.name.includes("Kokura")) {
+        // 1. Play Jackpot Sound
+        SoundController.playJackpot();
+        
+        // 2. Add GIF to the left side
+        const gif = document.createElement('img');
+        gif.src = 'nn_dance.gif';
+        gif.className = 'kokura-dance';
+        title.prepend(gif); // Prepend adds it before the text
+    } else {
+        // Standard Fanfare
+        SoundController.playFanfare();
+    }
+
     setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
 }
 
@@ -254,28 +306,30 @@ function playEasterSound(path) {
     audio.play().catch(e => console.log("Audio play blocked", e));
 }
 
+/* --- FIXED: PRELOADED & SYNCHRONIZED JUMPSCARE --- */
+
 function triggerNiceNatureEvent() {
     if (document.getElementById('nn-jumpscare')) return;
 
-    // 1. Create the Audio object but don't play yet
+    // 1. Create Audio
     const audio = new Audio('sounds/oisu.mp3');
     audio.volume = isMuted ? 0 : 1.0; 
 
-    // 2. Create the Image object first to start loading
+    // 2. Create Image (Start Loading)
     const img = document.createElement('img');
     img.src = 'nn_plush.png';
     
-    // Style the image
+    // Style Image
     Object.assign(img.style, {
         height: '90vh', 
         maxHeight: '90vw',
         objectFit: 'contain',
         filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
-        transform: 'scale(0)', // Start invisible
-        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' // Faster, snappier pop
+        transform: 'scale(0)', 
+        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' // Snap pop
     });
 
-    // 3. Create the Container
+    // 3. Create Container (Invisible initially)
     const container = document.createElement('div');
     container.id = 'nn-jumpscare';
     Object.assign(container.style, {
@@ -290,37 +344,32 @@ function triggerNiceNatureEvent() {
         alignItems: 'center',
         zIndex: '11000',
         pointerEvents: 'none',
-        opacity: '0', // Start container invisible too
+        opacity: '0',
         transition: 'opacity 0.1s linear'
     });
 
     container.appendChild(img);
     document.body.appendChild(container);
 
-    // 4. Define the start logic
+    // 4. Execution Function
     const executeScare = () => {
-        // Show container
         container.style.opacity = '1';
         
-        // Play Audio
         const playPromise = audio.play();
 
-        // Pop the image immediately
         requestAnimationFrame(() => {
             img.style.transform = 'scale(1)';
         });
 
-        // Handle Cleanup
         audio.onended = () => {
             img.style.transform = 'scale(0)';
             setTimeout(() => container.remove(), 300);
         };
 
-        // Fallback if audio fails
         if (playPromise !== undefined) {
             playPromise.catch(error => {
                 console.warn("Audio blocked:", error);
-                // Still show visual scare for 2.5s if audio is blocked
+                // Fallback visual scare
                 setTimeout(() => {
                     img.style.transform = 'scale(0)';
                     setTimeout(() => container.remove(), 300);
@@ -329,27 +378,23 @@ function triggerNiceNatureEvent() {
         }
     };
 
-    // 5. WAIT for image to load before triggering anything
+    // 5. Wait for Load
     if (img.complete) {
-        // Image already cached? Go immediately.
         executeScare();
     } else {
-        // Not loaded? Wait for it.
         img.onload = executeScare;
-        img.onerror = () => { console.error("Failed to load nn_plush.png"); container.remove(); };
+        img.onerror = () => { container.remove(); };
     }
 }
 
 function checkStartupEvent() {
     const hasVisited = localStorage.getItem('uma_has_visited');
     
-    // Trigger if: First visit EVER -or- 10% RNG check passes
+    // First visit OR 10% chance
     if (!hasVisited || Math.random() < 0.10) {
-        // Delay slightly longer so the user sees the page load first
-        setTimeout(triggerNiceNatureEvent, 2000);
+        setTimeout(triggerNiceNatureEvent, 1500);
     }
 
-    // Mark as visited
     if (!hasVisited) {
         localStorage.setItem('uma_has_visited', 'true');
     }
@@ -419,7 +464,6 @@ function loadState() {
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
     
-    // Run the Jumpscare Check
     checkStartupEvent();
     
     const rollBtn = document.getElementById('rollBtn');
@@ -445,4 +489,3 @@ document.addEventListener('DOMContentLoaded', () => {
         handleEasterEgg(e.key);
     });
 });
-
