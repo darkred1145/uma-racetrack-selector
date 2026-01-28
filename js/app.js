@@ -174,7 +174,6 @@ function finalize(pool) {
     const availableWeather = finalSeason === "Winter" ? nonSnowyWeather.concat(snowyWeather) : nonSnowyWeather;
     const finalWeather = availableWeather[Math.floor(Math.random() * availableWeather.length)];
 
-    // STORE DIRECTION IN STATE
     currentResult = { 
         track: finalTrack.name, 
         season: finalSeason, 
@@ -212,9 +211,8 @@ function finalize(pool) {
 
 function copyToClipboard() {
     if(!currentResult) return;
-    
-    // UPDATED COPY FORMAT
-    const text = `Track: ${currentResult.track} (${currentResult.dir})\nConditions: ${currentResult.season} / ${currentResult.weather}`;
+    // UPDATED FORMAT: Emojis + Capitalized Text + Direction
+    const text = `🏆 TRACK: ${currentResult.track} (${currentResult.dir})\n📅 CONDITIONS: ${currentResult.season} / ${currentResult.weather}`;
     
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('copyBtn');
