@@ -217,7 +217,7 @@ function handleEasterEgg(key) {
         keyBuffer = "";
     }
     
-    // NEW: Manual Trigger for Nice Nature Event
+    // Manual Trigger for Nice Nature Event
     if(keyBuffer.endsWith("NEICHA")) {
         triggerNiceNatureEvent();
         keyBuffer = "";
@@ -254,65 +254,75 @@ function playEasterSound(path) {
     audio.play().catch(e => console.log("Audio play blocked", e));
 }
 
-/* --- NEW: NICE NATURE JUMPSCARE LOGIC --- */
+/* --- UPDATED: BIGGER NICE NATURE JUMPSCARE LOGIC --- */
 
 function triggerNiceNatureEvent() {
-    // Prevent multiple instances stacking
     if (document.getElementById('nn-jumpscare')) return;
 
-    // Create Audio
     const audio = new Audio('sounds/oisu.mp3');
-    // Mute if app is muted, otherwise fairly loud
-    audio.volume = isMuted ? 0 : 0.8; 
+    // Louder volume for impact
+    audio.volume = isMuted ? 0 : 1.0; 
 
-    // Create Image Container
+    // Create Container - Full screen overlay, centered
     const container = document.createElement('div');
     container.id = 'nn-jumpscare';
-    
-    // Style: Fixed at bottom, initially hidden off-screen
     Object.assign(container.style, {
         position: 'fixed',
-        bottom: '-100vh', 
-        left: '50%',
-        transform: 'translateX(-50%)', 
-        zIndex: '10000',
-        transition: 'bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', // Bouncy
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0,0,0,0.6)', // Dark overlay
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: '11000', // Very high z-index
         pointerEvents: 'none'
     });
 
+    // Create Image - Much bigger, starts scaled down to 0
     const img = document.createElement('img');
     img.src = 'nn_plush.png';
-    img.style.height = '50vh'; // Good visible size
-    img.style.filter = 'drop-shadow(0 0 20px rgba(0,0,0,0.5))';
+    Object.assign(img.style, {
+        height: '90vh', // Very big
+        maxHeight: '90vw',
+        objectFit: 'contain',
+        filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
+        transform: 'scale(0)', // Start invisible
+        // Very bouncy, sudden transition
+        transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' 
+    });
     
     container.appendChild(img);
     document.body.appendChild(container);
 
     const startScare = () => {
-        // Pop up
+        // Scale up rapidly
         requestAnimationFrame(() => {
-            container.style.bottom = '-20px'; // Peek up
+            img.style.transform = 'scale(1)';
         });
 
-        // Handle Audio End -> Slide down
+        // Handle Audio End -> Scale out
         audio.onended = () => {
-            container.style.bottom = '-100vh';
+            img.style.transform = 'scale(0)';
+            // Wait for transition before removing
             setTimeout(() => container.remove(), 600);
         };
         
-        // Safety: If audio fails/blocks, remove after delay so it doesn't get stuck
+        // Fallback safety
         audio.play().catch(e => {
             console.warn("Autoplay blocked, running silent visual", e);
             setTimeout(() => {
-                if(container.parentNode) {
-                   container.style.bottom = '-100vh';
+                if(img.parentNode) {
+                   img.style.transform = 'scale(0)';
                    setTimeout(() => container.remove(), 600); 
                 }
-            }, 2000); // Approximate length fallback
+            }, 2500); 
         });
     };
 
-    startScare();
+    // Slight delay before the shock
+    setTimeout(startScare, 100);
 }
 
 function checkStartupEvent() {
@@ -320,11 +330,11 @@ function checkStartupEvent() {
     
     // Trigger if: First visit EVER -or- 10% RNG check passes
     if (!hasVisited || Math.random() < 0.10) {
-        // Small delay to ensure DOM is ready and user is looking
-        setTimeout(triggerNiceNatureEvent, 1500);
+        // Delay slightly longer so the user sees the page load first
+        setTimeout(triggerNiceNatureEvent, 2000);
     }
 
-    // Mark as visited so next time it relies on RNG
+    // Mark as visited
     if (!hasVisited) {
         localStorage.setItem('uma_has_visited', 'true');
     }
