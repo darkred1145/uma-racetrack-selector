@@ -41,6 +41,43 @@
                     <option value="macchiato">Macchiato (Pastel/Dark)</option>
                 </select>
             </div>
+
+            <div class="control-group">
+                <span class="label">Tournament Settings ⚙️</span>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Season</span>
+                        <input type="number" id="tourneySeason" value="3" min="1" class="theme-select" style="padding: 5px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Open #</span>
+                        <input type="number" id="tourneyOpen" value="12" min="1" class="theme-select" style="padding: 5px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Date & Time</span>
+                    <input type="datetime-local" id="tourneyTime" class="theme-select" style="padding: 5px;">
+                </div>
+
+                <select id="weatherMode" class="theme-select" style="margin-bottom: 8px;">
+                    <option value="normal">Weather: Normal (Random)</option>
+                    <option value="favored" selected>Weather: Favored (Good)</option>
+                    <option value="madness">Weather: Madness (Bad)</option>
+                </select>
+
+                <select id="tourneyMode" class="theme-select" style="margin-bottom: 8px;">
+                    <option value="classic">Format: Racc Open (Classic Ban)</option>
+                    <option value="draft">Format: Racc Open (Uma Draft)</option>
+                    <option value="neuro" disabled>Format: Neuro Cup (WIP)</option>
+                </select>
+
+                <select id="scenarioSelect" class="theme-select">
+                    <option value="aoharu">Scenario: URA / Aoharu Hai</option>
+                    <option value="climax">Scenario: Climax (MANT)</option>
+                </select>
+            </div>
             <div class="control-group">
                 <span class="label">Surface</span>
                 <div class="chip-grid" id="terrainFilter">
@@ -96,10 +133,15 @@
         </div>
         
         <div class="conditions" id="resultCond"></div>
+
+        <div id="trackHistoryDisplay" class="track-history" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #eab308; border-radius: 8px; font-size: 0.95em; color: #fef08a; display: none; text-align: center;">
+            </div>
+
     </main>
 </div>
 
 <script src="js/data.js"></script>
+<script src="js/history.js"></script> 
 <script src="js/app.js"></script>
 </body>
 </html>
