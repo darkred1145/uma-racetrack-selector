@@ -6,7 +6,17 @@
     <title>Uma Musume Track Selector</title>
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="style.css">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://darkred1145.github.io/uma-racetrack-selector/">
+    <meta property="og:title" content="Uma Musume Track Selector 🏆">
+    <meta property="og:description" content="A fan-made tool to randomize racetracks and conditions for Uma Musume.">
+    <meta property="og:image" content="https://darkred1145.github.io/uma-racetrack-selector/social-preview.png">
+
+    <meta name="theme-color" content="#10b981">
+    
     <style>
+        /* Modal & Search Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
         .modal.show { display: flex; justify-content: center; align-items: center; }
         .modal-content { background: var(--surface, #1e1e1e); padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; border: 1px solid var(--primary, #10b981); color: #fff; max-height: 90vh; overflow-y: auto; }
@@ -15,7 +25,6 @@
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .settings-grid .control-group { margin-bottom: 0; }
         .full-width { grid-column: 1 / -1; }
-        .mt-2 { margin-top: 10px; }
         .search-container { display: flex; gap: 5px; }
         .search-btn { background: var(--primary, #10b981); border: none; padding: 5px 10px; border-radius: 4px; color: #fff; cursor: pointer; font-weight: bold; }
     </style>
@@ -58,9 +67,10 @@
                     <select id="tourneyMode" class="theme-select" style="flex: 1;">
                         <option value="classic">Racc Open (Classic Ban)</option>
                         <option value="draft">Racc Open (Uma Draft)</option>
+                        <option value="neuro" disabled>Neuro Cup (WIP)</option>
                     </select>
                     <select id="scenarioSelect" class="theme-select" style="flex: 1;">
-                        <option value="aoharu">URA / Aoharu Hai</option>
+                        <option value="aoharu">Unity Cup (Aoharu)</option>
                         <option value="climax">Trackblazer: SOTC (MANT)</option>
                     </select>
                 </div>
@@ -186,6 +196,7 @@
         <div class="conditions" id="resultCond"></div>
 
         <div id="trackHistoryDisplay" class="track-history" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #eab308; border-radius: 8px; font-size: 0.95em; color: #fef08a; display: none; text-align: center;"></div>
+
     </main>
 </div>
 
