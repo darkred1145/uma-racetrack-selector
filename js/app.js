@@ -142,6 +142,18 @@ function parseTracks(data) {
 const allTracks = typeof rawData !== 'undefined' ? parseTracks(rawData) : [];
 function getCheckedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value); }
 
+// Populate Datalist for Search
+function populateSearchDatalist() {
+    const datalist = document.getElementById('trackDatalist');
+    if(!datalist) return;
+    datalist.innerHTML = '';
+    allTracks.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.name;
+        datalist.appendChild(opt);
+    });
+}
+
 function startRoll() {
     if(!isMuted) SoundController.init();
     const btn = document.getElementById('rollBtn'); 
@@ -179,23 +191,39 @@ function startRoll() {
             counter++;
             if(counter > 15) speed += 20; if(counter > 20) speed += 40;
             setTimeout(step, speed);
-        } else { finalize(pool); }
+        } else { finalize(pool[Math.floor(Math.random() * pool.length)]); }
     }
     setTimeout(step, 300);
 }
 
+function triggerManualSearch() {
+    const searchVal = document.getElementById('trackSearch').value;
+    const track = allTracks.find(t => t.name.toLowerCase() === searchVal.toLowerCase());
+    
+    if (track) {
+        if(!isMuted) SoundController.init();
+        const historyDisp = document.getElementById('trackHistoryDisplay');
+        if(historyDisp) historyDisp.style.display = 'none';
+        
+        document.getElementById('mainStage').classList.remove('show');
+        document.getElementById('copyBtn').style.display = 'none';
+        
+        setTimeout(() => finalize(track), 200);
+    } else {
+        alert("Track not found! Check your spelling or select from the dropdown list.");
+    }
+}
+
 let currentResult = null;
 
-function finalize(pool) {
+function finalize(finalTrack) {
     const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
     const cond = document.getElementById('resultCond');
     const imgTarget = document.getElementById('imgTarget');
     const historyDisp = document.getElementById('trackHistoryDisplay');
 
-    const finalTrack = pool[Math.floor(Math.random() * pool.length)];
     const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
-    
     const nonSnowyKeys = ["Sunny / Firm", "Sunny / Good", "Cloudy / Firm", "Cloudy / Good", "Rainy / Soft", "Rainy / Heavy"];
     const snowyKeys = ["Snowy / Good", "Snowy / Soft"];
     const availableWeatherKeys = finalSeason === "Winter" ? nonSnowyKeys.concat(snowyKeys) : nonSnowyKeys;
@@ -220,13 +248,12 @@ function finalize(pool) {
     `;
     cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
     
-    // Check History File
     if (historyDisp) {
         if (typeof trackHistory !== 'undefined' && trackHistory[finalTrack.name]) {
             const uses = trackHistory[finalTrack.name];
-            historyDisp.innerHTML = `📜 <strong>Track History:</strong> Previously used in ${uses.join(', ')}`;
+            historyDisp.innerHTML = `📜 <strong>Tournament History:</strong> Previously used in ${uses.join(', ')}`;
         } else {
-            historyDisp.innerHTML = `🌟 <strong>Track History:</strong> First time running this track!`;
+            historyDisp.innerHTML = `🌟 <strong>Tournament History:</strong> First time running this track!`;
         }
         historyDisp.style.display = 'block';
     }
@@ -255,46 +282,75 @@ function finalize(pool) {
 function copyToClipboard() {
     if(!currentResult) return;
     
-    const tourneyMode = document.getElementById('tourneyMode') ? document.getElementById('tourneyMode').value : 'classic';
-    const scenario = document.getElementById('scenarioSelect') ? document.getElementById('scenarioSelect').value : 'aoharu';
-    const seasonInput = document.getElementById('tourneySeason');
-    const openInput = document.getElementById('tourneyOpen');
+    const tourneyMode = document.getElementById('tourneyMode').value;
+    const scenario = document.getElementById('scenarioSelect').value;
+    const seasonNum = document.getElementById('tourneySeason').value || '1';
+    const openNum = document.getElementById('tourneyOpen').value || '1';
     
-    const seasonNum = seasonInput ? seasonInput.value : '1';
-    const openNum = openInput ? openInput.value : '1';
-    
-    // Time processing
-    const timeInput = document.getElementById('tourneyTime');
-    let unixTimestamp;
-    if (timeInput && timeInput.value) {
-        unixTimestamp = Math.floor(new Date(timeInput.value).getTime() / 1000);
-    } else {
-        unixTimestamp = Math.floor(Date.now() / 1000) + 3600; // 1 hr from now fallback
-    }
+    const timeInput = document.getElementById('tourneyTime').value;
+    let unixTimestamp = timeInput ? Math.floor(new Date(timeInput).getTime() / 1000) : Math.floor(Date.now() / 1000) + 3600;
+
+    // DYNAMIC LIMITS
+    const trainLimit = document.getElementById('trainingTimeLimit').value || 55;
+    const banPhaseLimit = document.getElementById('banLength').value || 5;
+    const maxDupes = document.getElementById('maxDupes').value || 2;
+    const maxStyle = document.getElementById('maxStyle').value || 2;
 
     const isClimax = scenario === 'climax';
-    const wrongScenarioStr = isClimax ? "(e.g. Aoharu instead of Climax)" : "(e.g. URA instead of Aoharu)";
-    const banTimeLimit = isClimax ? "85 minutes" : "55 minutes"; 
-    const draftTimeLimit = isClimax ? "80 minutes" : "50 minutes";
+    const wrongScenarioStr = isClimax 
+        ? "(e.g. Unity Cup (Aoharu) instead of Trackblazer: SOTC (MANT))" 
+        : "(e.g. URA instead of Unity Cup (Aoharu))";
 
-    const header = `Racc Open S${seasonNum}-${openNum.toString().padStart(2, '0')}\n<t:${unixTimestamp}:F>\n🏆 TRACK: ${currentResult.track} (${currentResult.dir})\n📅 CONDITIONS: ${currentResult.season} / ${currentResult.weather}`;
+    const header = `Racc Open S${seasonNum}-${openNum.toString().padStart(2, '0')}\n<t:${unixTimestamp}:F>\n🏆 TRACK: ${currentResult.track} (${currentResult.dir})\n📅 CONDITIONS: ${currentResult.season} / ${currentResult.weather}\n\nRules:`;
 
-    let text = "";
+    // SHARED RULES (Top)
+    const sharedRulesTop = [
+        "• Teams of 3, each player makes an uma in one run on the day and then they race. 5 races total. Points are allocated based on each player's placement and the team with the most points wins.",
+        "• Captains are chosen for each team and teams are established via a snake draft made up of all people who have signed up."
+    ];
+
+    // MODE SPECIFIC RULES
+    let modeSpecificRules = [];
     if (tourneyMode === 'classic') {
-        text = `${header}\nRules:\n• Teams of 3, each player makes an uma in one run on the day and then they race. 5 races total. Points are allocated based on each player's placement and the team with the most points wins.\n• Captains are chosen for each team and teams are established via a snake draft made up of all people who have signed up\n• If there are 18 or more players, instead of all teams in one race, teams will be split into groups and each group will do 5 races. The winning team from each group and the next highest point scoring team will then do 5 more races to determine a winner.\n• Borrows are allowed for this tournament\n• If your career fails get fucked LMAO\n• The exception to this is if you start your career on the wrong scenario ${wrongScenarioStr}, in which case you may restart.\n• A ban system will be implemented wherein team Captains will DM me their single ban. Teams will have no knowledge of other bans, so bans can overlap. This means it is possible for only 1 uma to be banned during a tournament.\n• In order to join, you just enter the signup channel on the day, the start time is not rigid and may be delayed up to 30 minutes depending on numbers, but it may also start on the dot so try not to be late. The tournament may take up to two hours.\n• After Team Select, you will have a maximum of 5 minutes to make a ban.\n• Each team may only have 2 umas in the same style\n• Each team may only have 2 duplicate umas\n• After the ban phase, you will have only ${banTimeLimit} to make your uma before penalties apply.\n@everyone`;
+        modeSpecificRules = [
+            "• If there are 18 or more players, instead of all teams in one race, teams will be split into groups and each group will do 5 races. The winning team from each group and the next highest point scoring team will then do 5 more races to determine a winner.",
+            "• A ban system will be implemented wherein team Captains will DM me their single ban. Teams will have no knowledge of other bans, so bans can overlap. This means it is possible for only 1 uma to be banned during a tournament.",
+            `• After Team Select, you will have a maximum of ${banPhaseLimit} minutes to make a ban.`,
+            `• Each team may only have ${maxStyle} umas in the same style.`,
+            `• Each team may only have ${maxDupes} duplicate umas.`,
+            `• After the ban phase, you will have only ${trainLimit} minutes to make your uma before penalties apply.`
+        ];
     } else if (tourneyMode === 'draft') {
-        text = `${header}\n\nRules:\n- There are NO bans for this tournament.\n- Instead of a ban phase, there will be an uma snake draft phase where teams will pick the umas they wish to run.\n- There can be no duplicate umas\n- Players will have ${draftTimeLimit} after the end of the uma draft phase to make their ace. \n- 2 points will be deducted per minute over the time limit up to 20 points. If a player is still not ready after 10 minutes, an NPC will replace them until they are able to join with a completed ace. \n- Teams of 3, each player makes an uma in one run on the day and then they race. 5 races total. Points are allocated based on each player's placement and the team with the most points wins.\n- Teams are established via a snake draft made up of all people who have signed up.\n- Borrows are allowed for this tournament\n- If your career fails get fucked LMAO\n- The exception to this is if you start your career on the wrong scenario ${wrongScenarioStr}, in which case you may restart.\n- In order to join, you just enter the signup channel on the day, the start time is not rigid and may be delayed up to 30 minutes depending on numbers, but it may also start on the dot so try not to be late. The tournament may take up to two hours.\n@everyone`;
+        modeSpecificRules = [
+            "• There are NO bans for this tournament.",
+            "• Instead of a ban phase, there will be an uma snake draft phase where teams will pick the umas they wish to run.",
+            "• There can be no duplicate umas.",
+            `• Players will have ${trainLimit} minutes after the end of the uma draft phase to make their ace.`,
+            "• 2 points will be deducted per minute over the time limit up to 20 points. If a player is still not ready after 10 minutes, an NPC will replace them until they are able to join with a completed ace."
+        ];
     }
+
+    // SHARED RULES (Bottom)
+    const sharedRulesBottom = [
+        "• Borrows are allowed for this tournament.",
+        "• If your career fails get fucked LMAO.",
+        `• The exception to this is if you start your career on the wrong scenario ${wrongScenarioStr}, in which case you may restart.`,
+        "• In order to join, you just enter the signup channel on the day, the start time is not rigid and may be delayed up to 30 minutes depending on numbers, but it may also start on the dot so try not to be late. The tournament may take up to two hours."
+    ];
+
+    // Combine everything
+    const allRules = [...sharedRulesTop, ...modeSpecificRules, ...sharedRulesBottom].join('\n');
+    const text = `${header}\n${allRules}\n@everyone`;
 
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('copyBtn');
         const originalText = btn.innerText;
         btn.innerText = "✅ Copied to Discord!";
         
-        // Auto-increment the Open Number
+        const openInput = document.getElementById('tourneyOpen');
         if (openInput) {
             openInput.value = parseInt(openInput.value) + 1;
-            saveState(); // Save the new incremented value to local storage
+            saveState(); 
         }
 
         setTimeout(() => btn.innerText = originalText, 2000);
@@ -409,7 +465,11 @@ function saveState() {
         tourneyMode: document.getElementById('tourneyMode') ? document.getElementById('tourneyMode').value : 'classic',
         scenario: document.getElementById('scenarioSelect') ? document.getElementById('scenarioSelect').value : 'aoharu',
         season: document.getElementById('tourneySeason') ? document.getElementById('tourneySeason').value : '1',
-        openNum: document.getElementById('tourneyOpen') ? document.getElementById('tourneyOpen').value : '1'
+        openNum: document.getElementById('tourneyOpen') ? document.getElementById('tourneyOpen').value : '1',
+        trainLimit: document.getElementById('trainingTimeLimit') ? document.getElementById('trainingTimeLimit').value : 55,
+        banLength: document.getElementById('banLength') ? document.getElementById('banLength').value : 5,
+        maxDupes: document.getElementById('maxDupes') ? document.getElementById('maxDupes').value : 2,
+        maxStyle: document.getElementById('maxStyle') ? document.getElementById('maxStyle').value : 2
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -441,11 +501,12 @@ function loadState() {
         setSelect('weatherMode', state.weatherMode);
         setSelect('tourneyMode', state.tourneyMode);
         setSelect('scenarioSelect', state.scenario);
-        
-        const seasonInput = document.getElementById('tourneySeason');
-        if(seasonInput && state.season) seasonInput.value = state.season;
-        const openInput = document.getElementById('tourneyOpen');
-        if(openInput && state.openNum) openInput.value = state.openNum;
+        setSelect('tourneySeason', state.season);
+        setSelect('tourneyOpen', state.openNum);
+        setSelect('trainingTimeLimit', state.trainLimit);
+        setSelect('banLength', state.banLength);
+        setSelect('maxDupes', state.maxDupes);
+        setSelect('maxStyle', state.maxStyle);
 
         if(state.theme) changeTheme();
 
@@ -463,15 +524,48 @@ function loadState() {
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
     checkStartupEvent();
+    populateSearchDatalist();
+
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
     const muteBtn = document.getElementById('muteBtn');
     if(muteBtn) muteBtn.addEventListener('click', toggleMute);
     const copyBtn = document.getElementById('copyBtn');
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
+
+    const manualSelectBtn = document.getElementById('manualSelectBtn');
+    if(manualSelectBtn) manualSelectBtn.addEventListener('click', triggerManualSearch);
     
-    // Listeners for dropdowns/inputs to save state
-    ['themeSelect', 'weatherMode', 'tourneyMode', 'scenarioSelect', 'tourneySeason', 'tourneyOpen'].forEach(id => {
+    // Modal Logic
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettings = document.getElementById('closeSettings');
+    
+    if(settingsBtn && settingsModal) {
+        settingsBtn.addEventListener('click', () => settingsModal.classList.add('show'));
+        closeSettings.addEventListener('click', () => settingsModal.classList.remove('show'));
+        window.addEventListener('click', (e) => {
+            if(e.target === settingsModal) settingsModal.classList.remove('show');
+        });
+    }
+
+    // Auto-adjust training time limit on Scenario change
+    const scenarioSelect = document.getElementById('scenarioSelect');
+    if(scenarioSelect) {
+        scenarioSelect.addEventListener('change', (e) => {
+            const trainInput = document.getElementById('trainingTimeLimit');
+            if(e.target.value === 'climax') {
+                trainInput.value = 85;
+            } else {
+                trainInput.value = 55;
+            }
+            saveState();
+        });
+    }
+    
+    // Listeners for inputs to save state
+    const inputsToSave = ['themeSelect', 'weatherMode', 'tourneyMode', 'scenarioSelect', 'tourneySeason', 'tourneyOpen', 'trainingTimeLimit', 'banLength', 'maxDupes', 'maxStyle'];
+    inputsToSave.forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('change', saveState);
     });
