@@ -6,29 +6,30 @@
     <title>Uma Musume Track Selector</title>
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="style.css">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://darkred1145.github.io/uma-racetrack-selector/">
-    <meta property="og:title" content="Uma Musume Track Selector 🏆">
-    <meta property="og:description" content="A fan-made tool to randomize racetracks and conditions for Uma Musume.">
-    <meta property="og:image" content="https://darkred1145.github.io/uma-racetrack-selector/social-preview.png">
-
-    <meta name="theme-color" content="#10b981">
+    <style>
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal.show { display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: var(--surface, #1e1e1e); padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; border: 1px solid var(--primary, #10b981); color: #fff; max-height: 90vh; overflow-y: auto; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .settings-grid .control-group { margin-bottom: 0; }
+        .full-width { grid-column: 1 / -1; }
+        .mt-2 { margin-top: 10px; }
+        .search-container { display: flex; gap: 5px; }
+        .search-btn { background: var(--primary, #10b981); border: none; padding: 5px 10px; border-radius: 4px; color: #fff; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
 
 <canvas id="confetti"></canvas>
 
-<div class="dashboard">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-area">
-                <h1>Uma Musume<br>Track Selector</h1>
-            </div>
-            <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
-        </div>
-
-        <div class="scroll-area">
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeSettings">&times;</span>
+        <h2>Tournament Settings ⚙️</h2>
+        
+        <div class="settings-grid">
             <div class="control-group">
                 <span class="label">Theme</span>
                 <select class="theme-select" id="themeSelect">
@@ -41,43 +42,93 @@
                     <option value="macchiato">Macchiato (Pastel/Dark)</option>
                 </select>
             </div>
-
+            
             <div class="control-group">
-                <span class="label">Tournament Settings ⚙️</span>
-                
-                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-                    <div style="flex: 1;">
-                        <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Season</span>
-                        <input type="number" id="tourneySeason" value="3" min="1" class="theme-select" style="padding: 5px;">
-                    </div>
-                    <div style="flex: 1;">
-                        <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Open #</span>
-                        <input type="number" id="tourneyOpen" value="12" min="1" class="theme-select" style="padding: 5px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 8px;">
-                    <span class="label" style="font-size: 0.75rem; margin-bottom: 2px;">Date & Time</span>
-                    <input type="datetime-local" id="tourneyTime" class="theme-select" style="padding: 5px;">
-                </div>
-
-                <select id="weatherMode" class="theme-select" style="margin-bottom: 8px;">
-                    <option value="normal">Weather: Normal (Random)</option>
-                    <option value="favored" selected>Weather: Favored (Good)</option>
-                    <option value="madness">Weather: Madness (Bad)</option>
-                </select>
-
-                <select id="tourneyMode" class="theme-select" style="margin-bottom: 8px;">
-                    <option value="classic">Format: Racc Open (Classic Ban)</option>
-                    <option value="draft">Format: Racc Open (Uma Draft)</option>
-                    <option value="neuro" disabled>Format: Neuro Cup (WIP)</option>
-                </select>
-
-                <select id="scenarioSelect" class="theme-select">
-                    <option value="aoharu">Scenario: URA / Aoharu Hai</option>
-                    <option value="climax">Scenario: Climax (MANT)</option>
+                <span class="label">Weather Mode</span>
+                <select id="weatherMode" class="theme-select">
+                    <option value="normal">Normal (Random)</option>
+                    <option value="favored" selected>Favored (Good)</option>
+                    <option value="madness">Madness (Bad)</option>
                 </select>
             </div>
+
+            <div class="control-group full-width">
+                <span class="label">Format & Scenario</span>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <select id="tourneyMode" class="theme-select" style="flex: 1;">
+                        <option value="classic">Racc Open (Classic Ban)</option>
+                        <option value="draft">Racc Open (Uma Draft)</option>
+                    </select>
+                    <select id="scenarioSelect" class="theme-select" style="flex: 1;">
+                        <option value="aoharu">URA / Aoharu Hai</option>
+                        <option value="climax">Trackblazer: SOTC (MANT)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <span class="label">Season & Open #</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="tourneySeason" value="3" min="1" class="theme-select">
+                    <input type="number" id="tourneyOpen" value="12" min="1" class="theme-select">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <span class="label">Date & Time</span>
+                <input type="datetime-local" id="tourneyTime" class="theme-select">
+            </div>
+
+            <div class="control-group full-width" style="border-top: 1px solid #333; padding-top: 10px; margin-top: 5px;">
+                <span class="label">Clipboard Rules (Dynamic Limits)</span>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 0.75rem;">Training Time (mins)</span>
+                        <input type="number" id="trainingTimeLimit" value="55" class="theme-select">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 0.75rem;">Ban/Draft Phase (mins)</span>
+                        <input type="number" id="banLength" value="5" class="theme-select">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 0.75rem;">Max Dupes</span>
+                        <input type="number" id="maxDupes" value="2" class="theme-select">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 0.75rem;">Max Same Style</span>
+                        <input type="number" id="maxStyle" value="2" class="theme-select">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <h1>Uma Musume<br>Track Selector</h1>
+            </div>
+            <div>
+                <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">⚙️</button>
+                <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
+            </div>
+        </div>
+
+        <div class="scroll-area">
+            
+            <div class="control-group">
+                <span class="label">🔍 Manual Track Search</span>
+                <div class="search-container">
+                    <input type="text" id="trackSearch" list="trackDatalist" placeholder="e.g. Tokyo Turf 2400m..." class="theme-select" style="flex: 1;">
+                    <datalist id="trackDatalist"></datalist>
+                    <button id="manualSelectBtn" class="search-btn">Go</button>
+                </div>
+            </div>
+
             <div class="control-group">
                 <span class="label">Surface</span>
                 <div class="chip-grid" id="terrainFilter">
@@ -134,9 +185,7 @@
         
         <div class="conditions" id="resultCond"></div>
 
-        <div id="trackHistoryDisplay" class="track-history" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #eab308; border-radius: 8px; font-size: 0.95em; color: #fef08a; display: none; text-align: center;">
-            </div>
-
+        <div id="trackHistoryDisplay" class="track-history" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #eab308; border-radius: 8px; font-size: 0.95em; color: #fef08a; display: none; text-align: center;"></div>
     </main>
 </div>
 
