@@ -91,5 +91,13 @@ const rawData = [
     { id: "Kokura Dirt 1700m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11006.png" },
     { id: "Oi Dirt 2000m (Medium) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11103.png" },
     { id: "Oi Dirt 1800m (Mile) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11102.png" },
-    { id: "Oi Dirt 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11101.png" }
+    { id: "Oi Dirt 1200m (Sprint) Right Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10101/11101.png" },
+    { id: "Kawasaki Dirt 1600m (Mile) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10103/11301.png" },
+    { id: "Kawasaki Dirt 2100m (Medium) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10103/11302.png" },
+    { id: "Funabashi Dirt 1600m (Mile) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10104/11401.png" },
+    { id: "Funabashi Dirt 1800m (Mile) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10104/11402.png" },
+    { id: "Funabashi Dirt 2400m (Medium) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10104/11403.png" },
+    { id: "Morioka Dirt 1200m (Sprint) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10105/11501.png" },
+    { id: "Morioka Dirt 1600m (Mile) Left Max Runners:16", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10105/11502.png" },
+    { id: "Morioka Dirt 2000m (Medium) Left Max Runners:14", img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10105/11503.png" }
 ];
