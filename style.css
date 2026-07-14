@@ -187,19 +187,19 @@ body {
 .sidebar-header {
 	flex-shrink: 0;
 	display: flex;
-	justify-content: space-between;
-	align-items: stretch;
+	flex-wrap: wrap;
+	align-items: center;
 	border-bottom: 1px solid var(--border-col);
 	padding-bottom: 15px;
 	margin-bottom: 10px;
-	gap: 10px;
+	gap: 8px 10px;
 }
 
 .header-actions {
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
-	flex-shrink: 0;
+	width: 100%;
 }
 
 .header-select-wrap {
@@ -882,6 +882,7 @@ body {
 	.sidebar-header {
 		order: 0;
 		display: flex;
+		flex-wrap: nowrap;
 		align-items: center;
 		gap: 8px;
 		padding: 8px 12px;
@@ -900,6 +901,7 @@ body {
 	}
 
 	.header-actions {
+		width: auto;
 		align-items: center;
 		margin-left: auto;
 		gap: 6px;
@@ -1010,9 +1012,13 @@ body {
 		display: none;
 		flex-direction: column;
 		gap: 8px;
-		padding: 4px 12px 8px;
+		margin: 0 12px;
+		padding: 12px;
 		flex-grow: 0;
 		overflow-y: visible;
+		background: var(--chip-bg);
+		border: 1px solid var(--border-col);
+		border-radius: 16px;
 	}
 	.filter-toggle-input:checked ~ .scroll-area {
 		display: flex;
@@ -1057,6 +1063,7 @@ body {
 		order: 5;
 		display: block;
 		padding: 12px;
+		padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 		text-align: center;
 		border-top: none;
 	}
