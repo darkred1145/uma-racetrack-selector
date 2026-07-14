@@ -27,35 +27,37 @@
             <div class="logo-area">
                 <h1>Uma Musume<br>Track Selector</h1>
             </div>
-            <div>
+            <div class="header-actions">
+                <div class="header-select-wrap">
+                    <div class="header-select-item">
+                        <span class="label">Theme</span>
+                        <select class="theme-select" id="themeSelect">
+                            <option value="default">Default (Dark)</option>
+                            <option value="ram">Ram (Pink/White)</option>
+                            <option value="rem">Rem (Blue/White)</option>
+                            <option value="miku">Miku (Teal/Dark)</option>
+                            <option value="teto">Teto (Red/Charcoal)</option>
+                            <option value="cappuchin">Cappuchin (Coffee)</option>
+                            <option value="macchiato">Macchiato (Pastel/Dark)</option>
+                        </select>
+                    </div>
+                    <div class="header-select-item">
+                        <span class="label">Weather</span>
+                        <select id="weatherMode" class="theme-select">
+                            <option value="normal">Normal</option>
+                            <option value="favored" selected>Favored</option>
+                            <option value="madness">Madness</option>
+                        </select>
+                    </div>
+                </div>
                 <button type="button" id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
             </div>
         </div>
 
+        <input type="checkbox" id="filterToggle" class="filter-toggle-input">
+        <label for="filterToggle" class="filter-toggle-label">Filters</label>
+
         <div class="scroll-area">
-            
-            <div class="control-group">
-                <span class="label">Theme</span>
-                <select class="theme-select" id="themeSelect">
-                    <option value="default">Default (Dark)</option>
-                    <option value="ram">Ram (Pink/White)</option>
-                    <option value="rem">Rem (Blue/White)</option>
-                    <option value="miku">Miku (Teal/Dark)</option>
-                    <option value="teto">Teto (Red/Charcoal)</option>
-                    <option value="cappuchin">Cappuchin (Coffee)</option>
-                    <option value="macchiato">Macchiato (Pastel/Dark)</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <span class="label">Weather Mode</span>
-                <select id="weatherMode" class="theme-select">
-                    <option value="normal">Normal (Random)</option>
-                    <option value="favored" selected>Favored (Good)</option>
-                    <option value="madness">Madness (Bad)</option>
-                </select>
-            </div>
-
             <div class="control-group">
                 <span class="label">🔍 Manual Track Search</span>
                 <div class="search-container">
@@ -99,9 +101,10 @@
                 </div>
             </div>
         </div>
-        
+
+        <button type="button" class="roll-btn" id="rollBtn">ROLL TRACK</button>
+
         <div class="sidebar-footer">
-            <button type="button" class="roll-btn" id="rollBtn">ROLL TRACK</button>
             <footer class="credits">
                 Preview Art by <a href="https://www.pixiv.net/en/users/312420" target="_blank" rel="noopener noreferrer">@新米(ｱｯﾃﾝﾎﾞﾛｰP)</a>
             </footer>
