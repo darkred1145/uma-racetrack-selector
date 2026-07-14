@@ -821,8 +821,12 @@ body {
 	.header-select-wrap {
 		gap: 8px;
 	}
+	.header-select-item {
+		flex: 1;
+		min-width: 0;
+	}
 	.header-select-item .theme-select {
-		min-width: 100px;
+		width: 100%;
 		font-size: 0.75rem;
 		padding: 6px 28px 6px 10px;
 	}
@@ -851,6 +855,10 @@ body {
 	.header-actions {
 		width: 100%;
 		gap: 8px;
+	}
+	.header-select-item {
+		flex: 1;
+		min-width: 0;
 	}
 	.sidebar {
 		order: 1;
