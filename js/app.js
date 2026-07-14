@@ -142,15 +142,16 @@ function parseTracks(data) {
 const allTracks = typeof rawData !== 'undefined' ? parseTracks(rawData) : [];
 function getCheckedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value); }
 
-// Populate Datalist for Search
-function populateSearchDatalist() {
-    const datalist = document.getElementById('trackDatalist');
-    if(!datalist) return;
-    datalist.innerHTML = '';
+// Populate Track Select Dropdown
+function populateTrackSelect() {
+    const select = document.getElementById('trackSearch');
+    if(!select) return;
+    select.innerHTML = '<option value="">— Select a track —</option>';
     allTracks.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.name;
-        datalist.appendChild(opt);
+        opt.textContent = t.name;
+        select.appendChild(opt);
     });
 }
 
@@ -193,7 +194,8 @@ function startRoll() {
 
 function triggerManualSearch() {
     const searchVal = document.getElementById('trackSearch').value;
-    const track = allTracks.find(t => t.name.toLowerCase() === searchVal.toLowerCase());
+    if (!searchVal) { alert("Please select a track from the dropdown."); return; }
+    const track = allTracks.find(t => t.name === searchVal);
     
     if (track) {
         if(!isMuted) SoundController.init();
@@ -202,7 +204,7 @@ function triggerManualSearch() {
         
         setTimeout(() => finalize(track), 200);
     } else {
-        alert("Track not found! Check your spelling or select from the dropdown list.");
+        alert("Track not found! Select from the dropdown list.");
     }
 }
 
@@ -405,7 +407,7 @@ function loadState() {
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
     checkStartupEvent();
-    populateSearchDatalist();
+    populateTrackSelect();
 
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
@@ -415,11 +417,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualSelectBtn = document.getElementById('manualSelectBtn');
     if(manualSelectBtn) {
         manualSelectBtn.addEventListener('click', triggerManualSearch);
-        const searchInput = document.getElementById('trackSearch');
-        if(searchInput) {
-            searchInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') triggerManualSearch(); });
-            searchInput.addEventListener('input', () => { manualSelectBtn.disabled = !searchInput.value.trim(); });
-            manualSelectBtn.disabled = !searchInput.value.trim();
+        const searchSelect = document.getElementById('trackSearch');
+        if(searchSelect) {
+            searchSelect.addEventListener('change', () => { manualSelectBtn.disabled = !searchSelect.value; });
+            manualSelectBtn.disabled = !searchSelect.value;
         }
     }
     
