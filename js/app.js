@@ -423,12 +423,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Listeners for inputs to save state
-    const inputsToSave = ['themeSelect', 'weatherMode'];
-    inputsToSave.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.addEventListener('change', saveState);
-    });
+    // Theme select: change + save
+    const themeEl = document.getElementById('themeSelect');
+    if(themeEl) {
+        themeEl.addEventListener('change', () => { changeTheme(); saveState(); });
+    }
+    
+    // Weather select: save state
+    const weatherEl = document.getElementById('weatherMode');
+    if(weatherEl) weatherEl.addEventListener('change', saveState);
     
     document.querySelectorAll('input[type="checkbox"]').forEach(el => { el.addEventListener('change', saveState); });
     document.addEventListener('keydown', (e) => {
