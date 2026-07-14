@@ -58,9 +58,8 @@
             <div class="control-group">
                 <span class="label">🔍 Manual Track Search</span>
                 <div class="search-container">
-                    <select id="trackSearch" class="theme-select">
-                        <option value="">— Select a track —</option>
-                    </select>
+                    <input type="text" id="trackSearch" list="trackDatalist" placeholder="e.g. Tokyo Turf 2400m..." class="search-input">
+                    <datalist id="trackDatalist"></datalist>
                     <button id="manualSelectBtn" class="search-btn">Go</button>
                 </div>
             </div>
