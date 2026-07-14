@@ -1,10 +1,10 @@
 :root {
     --bg-grad-start: #1a1020; --bg-grad-end: #0f0d1a;
     --glass-bg: rgba(26, 16, 32, 0.85); --border-col: rgba(244, 114, 182, 0.12);
-    --primary: #f472b6; --primary-glow: rgba(244, 114, 182, 0.35);
+    --primary: #db2777; --primary-glow: rgba(219, 39, 119, 0.35);
     --accent: #fbbf24;
     --text-main: #fce7f3; --text-muted: #a18fa0;
-    --chip-bg: rgba(255,255,255,0.05); --btn-text: #1a1020;
+    --chip-bg: rgba(255,255,255,0.05); --btn-text: #fff;
     --option-bg: #1a1020; --option-text: #fce7f3;
     color-scheme: dark;
 }
