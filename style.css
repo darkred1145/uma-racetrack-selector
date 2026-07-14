@@ -4,7 +4,7 @@
     --primary: #db2777; --primary-glow: rgba(219, 39, 119, 0.35);
     --accent: #fbbf24;
     --text-main: #fce7f3; --text-muted: #a18fa0;
-    --chip-bg: rgba(255,255,255,0.05); --btn-text: #fff;
+    --chip-bg: rgba(255,255,255,0.05); --btn-text: #fce7f3;
     --option-bg: #1a1020; --option-text: #fce7f3;
     color-scheme: dark;
 }
