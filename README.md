@@ -1,16 +1,16 @@
-# Uma Musume Track Selector 🏆
+# Uma Musume Track Selector
 
-A fan-made tool to randomize racetracks and conditions. Roll a random track from JRA and NAR races with seasonal weather simulation.
+A fan tool to randomize racetracks and conditions. Roll a random track from JRA and NAR races with seasonal weather.
 
 ## Features
 
-- 🎲 **Random roll** — pick a random track filtered by surface, distance, direction, and capacity
-- 🔍 **Manual search** — type any track name with autocomplete suggestions
-- 🌦 **Weather modes** — Normal (random), Favored (good weather bias), or Madness (bad weather bias)
-- 🎨 **Themes** — 7 built-in themes plus 2 secret unlockable themes via easter eggs
-- 🎵 **Sound effects** — synthesized fanfare, tick sounds, and a special jackpot for Kokura
-- 🐴 **All tracks** — all JRA turf/dirt + NAR dirt tracks (Oi, Kawasaki, Funabashi, Morioka) with correct course data
-- 🎊 **Confetti burst** on every roll
+- Random roll filtered by surface, distance, direction, and capacity
+- Manual search with autocomplete
+- Three weather modes: Normal (random), Favored (good bias), Madness (bad bias)
+- 7 themes plus 2 unlockable via easter eggs
+- Sound effects for fanfare and ticks
+- All JRA turf/dirt + NAR dirt tracks (Oi, Kawasaki, Funabashi, Morioka)
+- Confetti on every roll
 
 ## Usage
 
@@ -24,13 +24,13 @@ npx serve .
 
 ```sh
 npm install
-npm run lint    # check code quality
-npm run lint:fix  # auto-fix lint issues
+npm run lint
+npm run lint:fix
 ```
 
 ## Easter Eggs
 
-There are secret themes and interactions hidden in this app. Try typing in the dark...
+There are a couple of hidden themes to find.
 
 ## Credits
 
