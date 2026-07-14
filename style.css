@@ -815,79 +815,113 @@ body {
 
 @media (max-width: 600px) {
 	.dashboard {
-		padding: 12px;
-		gap: 12px;
+		padding: 12px 12px 100px;
+		gap: 10px;
 	}
 	.sidebar {
 		padding-right: 0;
-		padding-top: 16px;
+		padding-top: 12px;
 	}
 	.sidebar-header {
-		padding-bottom: 12px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 10px;
 		margin-bottom: 6px;
 	}
 	.logo-area h1 {
-		font-size: 1rem;
+		font-size: 0.9rem;
 	}
 	.scroll-area {
-		gap: 10px;
+		gap: 8px;
 	}
 	.control-group {
-		padding: 10px;
+		padding: 8px 10px;
 	}
 	.label {
-		font-size: 0.65rem;
-		margin-bottom: 6px;
+		font-size: 0.6rem;
+		margin-bottom: 4px;
+	}
+	.chip-grid {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		gap: 4px;
+		padding-bottom: 2px;
+	}
+	.chip-grid::-webkit-scrollbar {
+		display: none;
+	}
+	.chip {
+		flex: 0 0 auto;
 	}
 	.chip span {
 		padding: 8px 12px;
-		font-size: 0.75rem;
+		font-size: 0.72rem;
+		white-space: nowrap;
 	}
 	.theme-select {
-		padding: 10px 12px;
-		font-size: 0.8rem;
+		padding: 8px 28px 8px 12px;
+		font-size: 0.78rem;
 	}
 	.track-display {
-		font-size: 1.4rem;
+		font-size: 1.3rem;
 	}
 	.track-img-container {
-		height: 200px;
-		margin-top: 12px;
+		height: 180px;
+		margin-top: 10px;
 	}
 	.badge {
-		font-size: 0.65rem;
-		padding: 4px 10px;
+		font-size: 0.6rem;
+		padding: 3px 8px;
 	}
 	.meta-tags {
-		gap: 6px;
-		margin-top: 12px;
+		gap: 5px;
+		margin-top: 10px;
 	}
 	.conditions {
-		font-size: 1.15rem;
-		margin-top: 12px;
-	}
-	.roll-btn {
-		padding: 14px;
-		font-size: 1.1rem;
+		font-size: 1rem;
+		margin-top: 10px;
 	}
 	.search-input {
-		font-size: 0.8rem;
+		font-size: 0.78rem;
 		padding: 8px 10px;
 	}
 	.search-btn {
 		padding: 8px 12px;
-		font-size: 0.8rem;
+		font-size: 0.78rem;
 	}
 	.icon-btn {
-		width: 36px;
-		height: 36px;
-		font-size: 1.1rem;
-	}
-	.credits {
-		font-size: 0.7rem;
+		width: 34px;
+		height: 34px;
+		font-size: 1rem;
 	}
 	.main-stage {
-		min-height: 30vh;
-		padding: 10px 0;
+		min-height: 25vh;
+		padding: 5px 0;
+	}
+	.sidebar-footer {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 50;
+		background: var(--glass-bg);
+		backdrop-filter: blur(20px);
+		border-top: 1px solid var(--border-col);
+		padding: 10px 12px;
+		margin: 0;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+	}
+	.sidebar-footer .credits {
+		display: none;
+	}
+	.roll-btn {
+		padding: 12px;
+		font-size: 1rem;
+		letter-spacing: 1.5px;
 	}
 }
