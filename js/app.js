@@ -1,5 +1,4 @@
 const STORAGE_KEY = 'uma_track_selector';
-let isMuted = localStorage.getItem('uma_mute') === 'true';
 
 const SECRET_THEMES_INFO = {
     "nature": "✨ Nice Nature (Bronze) ✨",
@@ -7,82 +6,7 @@ const SECRET_THEMES_INFO = {
 };
 let unlockedThemes = []; 
 
-// --- AUDIO CONTROLLER ---
-const SoundController = {
-    ctx: null,
-    init: function() {
-        if (isMuted) return;
-        if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
-        if (this.ctx.state === 'suspended') { this.ctx.resume(); }
-    },
-    playTick: function() {
-        if(isMuted || !this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.05);
-    },
-    playFanfare: function() {
-        if(isMuted || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const notes = [523.25, 659.25, 783.99, 1046.50]; 
-        notes.forEach((freq, i) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sawtooth'; osc.frequency.value = freq;
-            const startTime = now + (i * 0.08); const stopTime = startTime + 0.8;
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, stopTime);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(startTime); osc.stop(stopTime);
-        });
-    },
-    playJackpot: function() {
-        if(isMuted) return;
-        const audio = new Audio('sounds/jackpot.mp3');
-        audio.volume = 0.7;
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                if(!this.ctx) return;
-                const now = this.ctx.currentTime;
-                [1200, 1500, 1800, 1200, 1500, 1800, 2400].forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'square'; osc.frequency.value = freq;
-                    const t = now + (i * 0.1);
-                    gain.gain.setValueAtTime(0, t);
-                    gain.gain.linearRampToValueAtTime(0.1, t + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(t); osc.stop(t + 0.1);
-                });
-            });
-        }
-    }
-};
-
-function toggleMute() {
-    isMuted = !isMuted;
-    localStorage.setItem('uma_mute', isMuted);
-    updateMuteIcon();
-    if(!isMuted) SoundController.init();
-}
-
-function updateMuteIcon() {
-    const btn = document.getElementById('muteBtn');
-    if(btn) {
-        btn.innerText = isMuted ? '🔇' : '🔊';
-        btn.style.opacity = isMuted ? '0.5' : '1';
-    }
-}
-
+// --- THEME LOGIC ---
 function changeTheme() {
     const themeSelect = document.getElementById('themeSelect');
     if(!themeSelect) return;
@@ -191,7 +115,9 @@ function startRoll() {
 }
 
 function triggerManualSearch() {
-    const searchVal = document.getElementById('trackSearch').value;
+    const searchInput = document.getElementById('trackSearch');
+    if (!searchInput) return;
+    const searchVal = searchInput.value;
     const track = allTracks.find(t => t.name.toLowerCase() === searchVal.toLowerCase());
     
     if (track) {
@@ -205,17 +131,21 @@ function triggerManualSearch() {
     }
 }
 
+function generateConditions() {
+    const season = seasons[Math.floor(Math.random() * seasons.length)];
+    const nonSnowyKeys = ["Sunny / Firm", "Sunny / Good", "Cloudy / Firm", "Cloudy / Good", "Rainy / Soft", "Rainy / Heavy"];
+    const snowyKeys = ["Snowy / Good", "Snowy / Soft"];
+    const availableWeatherKeys = season === "Winter" ? nonSnowyKeys.concat(snowyKeys) : nonSnowyKeys;
+    return { season, weather: getWeightedWeather(availableWeatherKeys) };
+}
+
 function finalize(finalTrack) {
     const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
     const cond = document.getElementById('resultCond');
     const imgTarget = document.getElementById('imgTarget');
 
-    const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
-    const nonSnowyKeys = ["Sunny / Firm", "Sunny / Good", "Cloudy / Firm", "Cloudy / Good", "Rainy / Soft", "Rainy / Heavy"];
-    const snowyKeys = ["Snowy / Good", "Snowy / Soft"];
-    const availableWeatherKeys = finalSeason === "Winter" ? nonSnowyKeys.concat(snowyKeys) : nonSnowyKeys;
-    const finalWeather = getWeightedWeather(availableWeatherKeys);
+    const { season: finalSeason, weather: finalWeather } = generateConditions();
 
     stage.classList.remove('rolling'); 
     title.innerText = finalTrack.name;
@@ -232,24 +162,42 @@ function finalize(finalTrack) {
 
     fireConfetti(); 
     
-    if (finalTrack.location === "Kokura" || finalTrack.name.includes("Kokura")) {
-        SoundController.playJackpot();
-        const gif = document.createElement('img');
-        gif.src = 'nn_dance.gif';
-        gif.className = 'kokura-dance';
-        title.prepend(gif); 
-    } else {
-        SoundController.playFanfare();
-    }
+    TrackEffects.run(finalTrack, title);
 
     setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
 }
 
 
 
+// --- TRACK EFFECTS REGISTRY ---
+const TrackEffects = {
+    registry: [
+        {
+            match: (t) => t.location === "Kokura" || t.name.includes("Kokura"),
+            run: (title) => {
+                SoundController.playJackpot();
+                const gif = document.createElement('img');
+                gif.src = 'nn_dance.gif';
+                gif.className = 'kokura-dance';
+                title.prepend(gif);
+            }
+        }
+    ],
+    run: function(track, title) {
+        const matched = this.registry.find(e => e.match(track));
+        if (matched) {
+            matched.run(title);
+        } else {
+            SoundController.playFanfare();
+        }
+    }
+};
+
 // --- VISUALS & EASTER EGGS ---
+let confettiAnimId = null;
 function fireConfetti() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
     const canvas = document.getElementById('confetti');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -261,7 +209,6 @@ function fireConfetti() {
         dx: (Math.random()-0.5)*20, dy: (Math.random()-0.5)*20,
         color: colors[Math.floor(Math.random() * colors.length)], life: 80
     }));
-    let animId;
     function animate() {
         ctx.clearRect(0,0,canvas.width,canvas.height); let active = false;
         for (const p of particles) {
@@ -271,9 +218,9 @@ function fireConfetti() {
             ctx.fillStyle = p.color; ctx.globalAlpha = p.life/80; ctx.fill();
             p.x+=p.dx; p.y+=p.dy; p.dy+=0.4; p.life--; p.r*=0.96;
         }
-        if(active) animId = requestAnimationFrame(animate);
+        if(active) confettiAnimId = requestAnimationFrame(animate);
     }
-    animId = requestAnimationFrame(animate);
+    confettiAnimId = requestAnimationFrame(animate);
 }
 
 let keyBuffer = "";
@@ -304,7 +251,7 @@ function playEasterSound(path) {
     if(isMuted) return;
     const audio = new Audio(path);
     audio.volume = 0.5;
-    audio.play().catch(e => console.log("Audio play blocked", e));
+    audio.play().catch(e => console.error("Audio play blocked", e));
 }
 
 function triggerNiceNatureEvent() {

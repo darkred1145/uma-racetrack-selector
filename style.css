@@ -314,7 +314,7 @@ body {
 #confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
 
 .search-container { display: flex; gap: 6px; }
-.search-input { flex: 1; background: var(--card-bg); border: 1px solid var(--border-col); color: var(--text); padding: 6px 12px; border-radius: 50px; font-size: 0.85rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.search-input { flex: 1; background: var(--chip-bg); border: 1px solid var(--border-col); color: var(--text-main); padding: 6px 12px; border-radius: 50px; font-size: 0.85rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
 .search-input:focus { border-color: var(--primary); }
 .search-input::placeholder { color: var(--text-muted); opacity: 0.6; }
 /* hide native datalist dropdown arrow to avoid double-dropdown look */

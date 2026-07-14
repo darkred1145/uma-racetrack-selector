@@ -1,0 +1,26 @@
+{
+  "name": "uma-racetrack-selector",
+  "version": "1.0.0",
+  "description": "A fan-made tool to randomize racetracks and conditions.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npx @biomejs/biome check style.css js/ index.html",
+    "lint:fix": "npx @biomejs/biome check --fix style.css js/ index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darkred1145/uma-racetrack-selector.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/darkred1145/uma-racetrack-selector/issues"
+  },
+  "homepage": "https://github.com/darkred1145/uma-racetrack-selector#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.3"
+  }
+}
