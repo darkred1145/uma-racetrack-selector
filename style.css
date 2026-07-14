@@ -181,6 +181,7 @@ body {
 	height: 100%;
 	border-right: 1px solid var(--border-col);
 	padding-right: 20px;
+	overflow: hidden;
 }
 
 .sidebar-header {
@@ -810,26 +811,20 @@ body {
 
 @media (min-width: 901px) {
 	.sidebar-header {
-		gap: 8px;
-	}
-	.logo-area h1 {
-		font-size: 0.85rem;
+		flex-wrap: wrap;
+		gap: 10px;
 	}
 	.header-actions {
-		gap: 4px;
+		width: 100%;
+		gap: 8px;
 	}
 	.header-select-wrap {
-		gap: 6px;
+		gap: 8px;
 	}
 	.header-select-item .theme-select {
-		min-width: 72px;
-		font-size: 0.7rem;
-		padding: 5px 22px 5px 8px;
-	}
-	.icon-btn {
-		width: 34px;
-		height: 34px;
-		font-size: 1rem;
+		min-width: 100px;
+		font-size: 0.75rem;
+		padding: 6px 28px 6px 10px;
 	}
 }
 
@@ -849,11 +844,18 @@ body {
 		border-radius: 0;
 		overflow: visible;
 	}
+	.sidebar-header {
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+	.header-actions {
+		width: 100%;
+		gap: 8px;
+	}
 	.sidebar {
 		order: 1;
 		border-right: none;
 		height: auto;
-		overflow: visible;
 	}
 	.scroll-area {
 		overflow-y: visible;
