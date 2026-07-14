@@ -160,10 +160,6 @@ function startRoll() {
     const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle');
     const imgTarget = document.getElementById('imgTarget');
-    const copyBtn = document.getElementById('copyBtn');
-    const historyDisp = document.getElementById('trackHistoryDisplay');
-    
-    if(historyDisp) historyDisp.style.display = 'none'; 
     
     const terrain = getCheckedValues('terrainFilter');
     const cat = getCheckedValues('catFilter');
@@ -177,7 +173,6 @@ function startRoll() {
 
     if(pool.length === 0) { title.innerText = "NO MATCHES"; stage.classList.remove('show'); return; }
 
-    copyBtn.style.display = 'none';
     btn.disabled = true; btn.innerText = "GATE IN..."; 
     stage.classList.remove('show'); 
     stage.classList.add('rolling');
@@ -202,11 +197,8 @@ function triggerManualSearch() {
     
     if (track) {
         if(!isMuted) SoundController.init();
-        const historyDisp = document.getElementById('trackHistoryDisplay');
-        if(historyDisp) historyDisp.style.display = 'none';
         
         document.getElementById('mainStage').classList.remove('show');
-        document.getElementById('copyBtn').style.display = 'none';
         
         setTimeout(() => finalize(track), 200);
     } else {
@@ -214,28 +206,17 @@ function triggerManualSearch() {
     }
 }
 
-let currentResult = null;
-
 function finalize(finalTrack) {
     const btn = document.getElementById('rollBtn'); const stage = document.getElementById('mainStage');
     const title = document.getElementById('resultTitle'); const meta = document.getElementById('resultMeta');
     const cond = document.getElementById('resultCond');
     const imgTarget = document.getElementById('imgTarget');
-    const historyDisp = document.getElementById('trackHistoryDisplay');
 
     const finalSeason = seasons[Math.floor(Math.random() * seasons.length)];
     const nonSnowyKeys = ["Sunny / Firm", "Sunny / Good", "Cloudy / Firm", "Cloudy / Good", "Rainy / Soft", "Rainy / Heavy"];
     const snowyKeys = ["Snowy / Good", "Snowy / Soft"];
     const availableWeatherKeys = finalSeason === "Winter" ? nonSnowyKeys.concat(snowyKeys) : nonSnowyKeys;
     const finalWeather = getWeightedWeather(availableWeatherKeys);
-
-    currentResult = { 
-        track: finalTrack.name, 
-        season: finalSeason, 
-        weather: finalWeather,
-        dir: finalTrack.fullDirection,
-        rawName: finalTrack.name
-    };
 
     stage.classList.remove('rolling'); 
     title.innerText = finalTrack.name;
@@ -247,24 +228,8 @@ function finalize(finalTrack) {
         <span class="badge highlight">Max: ${finalTrack.maxRunners}</span>
     `;
     cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
-    
-    if (historyDisp) {
-        historyDisp.className = 'track-history';
-        if (typeof trackHistory !== 'undefined' && trackHistory[finalTrack.name]) {
-            const uses = trackHistory[finalTrack.name];
-            historyDisp.innerHTML = `<strong>Tournament History:</strong> Previously used in ${uses.join(', ')}`;
-            historyDisp.classList.add('repeat');
-        } else {
-            historyDisp.innerHTML = `<strong>Tournament History:</strong> First time running this track!`;
-            historyDisp.classList.add('new');
-        }
-        historyDisp.style.display = 'block';
-    }
 
     stage.classList.add('show');
-    
-    const copyBtn = document.getElementById('copyBtn');
-    if(copyBtn) copyBtn.style.display = 'inline-block';
 
     fireConfetti(); 
     
@@ -281,84 +246,7 @@ function finalize(finalTrack) {
     setTimeout(() => { btn.disabled = false; btn.innerText = "ROLL TRACK"; }, 800);
 }
 
-// --- DISCORD CLIPBOARD GENERATOR ---
-function copyToClipboard() {
-    if(!currentResult) return;
-    
-    const tourneyMode = document.getElementById('tourneyMode').value;
-    const scenario = document.getElementById('scenarioSelect').value;
-    const seasonNum = document.getElementById('tourneySeason').value || '1';
-    const openNum = document.getElementById('tourneyOpen').value || '1';
-    
-    const timeInput = document.getElementById('tourneyTime').value;
-    let unixTimestamp = timeInput ? Math.floor(new Date(timeInput).getTime() / 1000) : Math.floor(Date.now() / 1000) + 3600;
 
-    // DYNAMIC LIMITS
-    const trainLimit = document.getElementById('trainingTimeLimit').value || 55;
-    const banPhaseLimit = document.getElementById('banLength').value || 5;
-    const maxDupes = document.getElementById('maxDupes').value || 2;
-    const maxStyle = document.getElementById('maxStyle').value || 2;
-
-    const isClimax = scenario === 'climax';
-    const wrongScenarioStr = isClimax 
-        ? "(e.g. Unity Cup (Aoharu) instead of Trackblazer: SOTC (MANT))" 
-        : "(e.g. URA instead of Unity Cup (Aoharu))";
-
-    const header = `Racc Open S${seasonNum}-${openNum.toString().padStart(2, '0')}\n<t:${unixTimestamp}:F>\n🏆 TRACK: ${currentResult.track} (${currentResult.dir})\n📅 CONDITIONS: ${currentResult.season} / ${currentResult.weather}\n\nRules:`;
-
-    // SHARED RULES (Top)
-    const sharedRulesTop = [
-        "• Teams of 3, each player makes an uma in one run on the day and then they race. 5 races total. Points are allocated based on each player's placement and the team with the most points wins.",
-        "• Captains are chosen for each team and teams are established via a snake draft made up of all people who have signed up."
-    ];
-
-    // MODE SPECIFIC RULES
-    let modeSpecificRules = [];
-    if (tourneyMode === 'classic') {
-        modeSpecificRules = [
-            "• If there are 18 or more players, instead of all teams in one race, teams will be split into groups and each group will do 5 races. The winning team from each group and the next highest point scoring team will then do 5 more races to determine a winner.",
-            "• A ban system will be implemented wherein team Captains will DM me their single ban. Teams will have no knowledge of other bans, so bans can overlap. This means it is possible for only 1 uma to be banned during a tournament.",
-            `• After Team Select, you will have a maximum of ${banPhaseLimit} minutes to make a ban.`,
-            `• Each team may only have ${maxStyle} umas in the same style.`,
-            `• Each team may only have ${maxDupes} duplicate umas.`,
-            `• After the ban phase, you will have only ${trainLimit} minutes to make your uma before penalties apply.`
-        ];
-    } else if (tourneyMode === 'draft') {
-        modeSpecificRules = [
-            "• There are NO bans for this tournament.",
-            "• Instead of a ban phase, there will be an uma snake draft phase where teams will pick the umas they wish to run.",
-            "• There can be no duplicate umas.",
-            `• Players will have ${trainLimit} minutes after the end of the uma draft phase to make their ace.`,
-            "• 2 points will be deducted per minute over the time limit up to 20 points. If a player is still not ready after 10 minutes, an NPC will replace them until they are able to join with a completed ace."
-        ];
-    }
-
-    // SHARED RULES (Bottom)
-    const sharedRulesBottom = [
-        "• Borrows are allowed for this tournament.",
-        "• If your career fails get fucked LMAO.",
-        `• The exception to this is if you start your career on the wrong scenario ${wrongScenarioStr}, in which case you may restart.`,
-        "• In order to join, you just enter the signup channel on the day, the start time is not rigid and may be delayed up to 30 minutes depending on numbers, but it may also start on the dot so try not to be late. The tournament may take up to two hours."
-    ];
-
-    // Combine everything
-    const allRules = [...sharedRulesTop, ...modeSpecificRules, ...sharedRulesBottom].join('\n');
-    const text = `${header}\n${allRules}\n@everyone`;
-
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
-        const originalText = btn.innerText;
-        btn.innerText = "✅ Copied to Discord!";
-        
-        const openInput = document.getElementById('tourneyOpen');
-        if (openInput) {
-            openInput.value = parseInt(openInput.value) + 1;
-            saveState(); 
-        }
-
-        setTimeout(() => btn.innerText = originalText, 2000);
-    }).catch(err => { console.error('Failed to copy:', err); });
-}
 
 // --- VISUALS & EASTER EGGS ---
 function fireConfetti() {
@@ -468,15 +356,7 @@ function saveState() {
         caps: getCheckedValues('capFilter'),
         muted: isMuted,
         unlocked: unlockedThemes,
-        weatherMode: document.getElementById('weatherMode') ? document.getElementById('weatherMode').value : 'favored',
-        tourneyMode: document.getElementById('tourneyMode') ? document.getElementById('tourneyMode').value : 'classic',
-        scenario: document.getElementById('scenarioSelect') ? document.getElementById('scenarioSelect').value : 'aoharu',
-        season: document.getElementById('tourneySeason') ? document.getElementById('tourneySeason').value : '1',
-        openNum: document.getElementById('tourneyOpen') ? document.getElementById('tourneyOpen').value : '1',
-        trainLimit: document.getElementById('trainingTimeLimit') ? document.getElementById('trainingTimeLimit').value : 55,
-        banLength: document.getElementById('banLength') ? document.getElementById('banLength').value : 5,
-        maxDupes: document.getElementById('maxDupes') ? document.getElementById('maxDupes').value : 2,
-        maxStyle: document.getElementById('maxStyle') ? document.getElementById('maxStyle').value : 2
+        weatherMode: document.getElementById('weatherMode') ? document.getElementById('weatherMode').value : 'favored'
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -506,14 +386,6 @@ function loadState() {
         };
         setSelect('themeSelect', state.theme);
         setSelect('weatherMode', state.weatherMode);
-        setSelect('tourneyMode', state.tourneyMode);
-        setSelect('scenarioSelect', state.scenario);
-        setSelect('tourneySeason', state.season);
-        setSelect('tourneyOpen', state.openNum);
-        setSelect('trainingTimeLimit', state.trainLimit);
-        setSelect('banLength', state.banLength);
-        setSelect('maxDupes', state.maxDupes);
-        setSelect('maxStyle', state.maxStyle);
 
         if(state.theme) changeTheme();
 
@@ -533,21 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
     checkStartupEvent();
     populateSearchDatalist();
 
-    // Set default datetime to next hour
-    const timeInput = document.getElementById('tourneyTime');
-    if(timeInput && !timeInput.value) {
-        const next = new Date();
-        next.setHours(next.getHours() + 1, 0, 0, 0);
-        const pad = (n) => String(n).padStart(2, '0');
-        timeInput.value = `${next.getFullYear()}-${pad(next.getMonth()+1)}-${pad(next.getDate())}T${pad(next.getHours())}:00`;
-    }
-
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
     const muteBtn = document.getElementById('muteBtn');
     if(muteBtn) muteBtn.addEventListener('click', toggleMute);
-    const copyBtn = document.getElementById('copyBtn');
-    if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
 
     const manualSelectBtn = document.getElementById('manualSelectBtn');
     if(manualSelectBtn) {
@@ -560,48 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Modal Logic
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const closeSettings = document.getElementById('closeSettings');
-    let lastFocusedEl = null;
-    
-    if(settingsBtn && settingsModal) {
-        settingsBtn.addEventListener('click', () => {
-            lastFocusedEl = document.activeElement;
-            settingsModal.classList.add('show');
-            closeSettings.focus();
-        });
-        closeSettings.addEventListener('click', closeModal);
-        settingsModal.addEventListener('click', (e) => {
-            if(e.target === settingsModal) closeModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if(e.key === 'Escape' && settingsModal.classList.contains('show')) closeModal();
-        });
-    }
-    
-    function closeModal() {
-        settingsModal.classList.remove('show');
-        if(lastFocusedEl) { lastFocusedEl.focus(); lastFocusedEl = null; }
-    }
-
-    // Auto-adjust training time limit on Scenario change
-    const scenarioSelect = document.getElementById('scenarioSelect');
-    if(scenarioSelect) {
-        scenarioSelect.addEventListener('change', (e) => {
-            const trainInput = document.getElementById('trainingTimeLimit');
-            if(e.target.value === 'climax') {
-                trainInput.value = 85;
-            } else {
-                trainInput.value = 55;
-            }
-            saveState();
-        });
-    }
-    
     // Listeners for inputs to save state
-    const inputsToSave = ['themeSelect', 'weatherMode', 'tourneyMode', 'scenarioSelect', 'tourneySeason', 'tourneyOpen', 'trainingTimeLimit', 'banLength', 'maxDupes', 'maxStyle'];
+    const inputsToSave = ['themeSelect', 'weatherMode'];
     inputsToSave.forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('change', saveState);

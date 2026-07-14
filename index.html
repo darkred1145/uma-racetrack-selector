@@ -17,14 +17,19 @@
 </head>
 <body>
 
-<canvas id="confetti"></canvas>
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <h1>Uma Musume<br>Track Selector</h1>
+            </div>
+            <div>
+                <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
+            </div>
+        </div>
 
-<div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content">
-        <button class="close-btn" id="closeSettings" aria-label="Close settings">&times;</button>
-        <h2 id="modalTitle">Tournament Settings</h2>
-        
-        <div class="settings-grid">
+        <div class="scroll-area">
+            
             <div class="control-group">
                 <span class="label">Theme</span>
                 <select class="theme-select" id="themeSelect">
@@ -37,7 +42,7 @@
                     <option value="macchiato">Macchiato (Pastel/Dark)</option>
                 </select>
             </div>
-            
+
             <div class="control-group">
                 <span class="label">Weather Mode</span>
                 <select id="weatherMode" class="theme-select">
@@ -47,75 +52,6 @@
                 </select>
             </div>
 
-            <div class="control-group full-width">
-                <span class="label">Format & Scenario</span>
-                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-                    <select id="tourneyMode" class="theme-select" style="flex: 1;">
-                        <option value="classic">Racc Open (Classic Ban)</option>
-                        <option value="draft">Racc Open (Uma Draft)</option>
-                        <option value="neuro" disabled>Neuro Cup (WIP)</option>
-                    </select>
-                    <select id="scenarioSelect" class="theme-select" style="flex: 1;">
-                        <option value="aoharu">Unity Cup (Aoharu)</option>
-                        <option value="climax">Trackblazer: SOTC (MANT)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <span class="label">Season & Open #</span>
-                <div style="display: flex; gap: 10px;">
-                    <input type="number" id="tourneySeason" value="3" min="1" class="theme-select">
-                    <input type="number" id="tourneyOpen" value="12" min="1" class="theme-select">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <span class="label">Date & Time</span>
-                <input type="datetime-local" id="tourneyTime" class="theme-select">
-            </div>
-
-            <div class="control-group full-width" style="border-top: 1px solid #333; padding-top: 10px; margin-top: 5px;">
-                <span class="label">Clipboard Rules (Dynamic Limits)</span>
-                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-                    <div style="flex: 1;">
-                        <span style="font-size: 0.75rem;">Training Time (mins)</span>
-                        <input type="number" id="trainingTimeLimit" value="55" min="1" max="180" class="theme-select">
-                    </div>
-                    <div style="flex: 1;">
-                        <span style="font-size: 0.75rem;">Ban/Draft Phase (mins)</span>
-                        <input type="number" id="banLength" value="5" min="1" max="60" class="theme-select">
-                    </div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <span style="font-size: 0.75rem;">Max Dupes</span>
-                        <input type="number" id="maxDupes" value="2" min="0" max="6" class="theme-select">
-                    </div>
-                    <div style="flex: 1;">
-                        <span style="font-size: 0.75rem;">Max Same Style</span>
-                        <input type="number" id="maxStyle" value="2" min="0" max="6" class="theme-select">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="dashboard">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-area">
-                <h1>Uma Musume<br>Track Selector</h1>
-            </div>
-            <div>
-                <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">⚙️</button>
-                <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
-            </div>
-        </div>
-
-        <div class="scroll-area">
-            
             <div class="control-group">
                 <span class="label">🔍 Manual Track Search</span>
                 <div class="search-container">
@@ -170,7 +106,6 @@
 
     <main class="main-stage" id="mainStage">
         <h2 class="track-display" id="resultTitle">READY</h2>
-        <button id="copyBtn" class="copy-btn" style="display: none;">📋 Copy Setup</button>
         <div class="meta-tags" id="resultMeta"></div>
         
         <div class="track-img-container" id="trackImgBox">
@@ -181,13 +116,10 @@
         
         <div class="conditions" id="resultCond"></div>
 
-        <div id="trackHistoryDisplay" class="track-history"></div>
-
     </main>
 </div>
 
 <script src="js/data.js"></script>
-<script src="js/history.js"></script> 
 <script src="js/app.js"></script>
 </body>
 </html>
