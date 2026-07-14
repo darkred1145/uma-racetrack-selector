@@ -801,5 +801,93 @@ body {
 	}
 	.track-img-container {
 		height: 250px;
+		max-width: 100%;
+	}
+	.main-stage {
+		min-height: 45vh;
+		padding: 20px 0;
+	}
+	.main-stage::before,
+	.main-stage::after {
+		display: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.dashboard {
+		padding: 12px;
+		gap: 12px;
+	}
+	.sidebar {
+		padding-right: 0;
+		padding-top: 16px;
+	}
+	.sidebar-header {
+		padding-bottom: 12px;
+		margin-bottom: 6px;
+	}
+	.logo-area h1 {
+		font-size: 1rem;
+	}
+	.scroll-area {
+		gap: 10px;
+	}
+	.control-group {
+		padding: 10px;
+	}
+	.label {
+		font-size: 0.65rem;
+		margin-bottom: 6px;
+	}
+	.chip span {
+		padding: 8px 12px;
+		font-size: 0.75rem;
+	}
+	.theme-select {
+		padding: 10px 12px;
+		font-size: 0.8rem;
+	}
+	.track-display {
+		font-size: 1.4rem;
+	}
+	.track-img-container {
+		height: 200px;
+		margin-top: 12px;
+	}
+	.badge {
+		font-size: 0.65rem;
+		padding: 4px 10px;
+	}
+	.meta-tags {
+		gap: 6px;
+		margin-top: 12px;
+	}
+	.conditions {
+		font-size: 1.15rem;
+		margin-top: 12px;
+	}
+	.roll-btn {
+		padding: 14px;
+		font-size: 1.1rem;
+	}
+	.search-input {
+		font-size: 0.8rem;
+		padding: 8px 10px;
+	}
+	.search-btn {
+		padding: 8px 12px;
+		font-size: 0.8rem;
+	}
+	.icon-btn {
+		width: 36px;
+		height: 36px;
+		font-size: 1.1rem;
+	}
+	.credits {
+		font-size: 0.7rem;
+	}
+	.main-stage {
+		min-height: 30vh;
+		padding: 10px 0;
 	}
 }
