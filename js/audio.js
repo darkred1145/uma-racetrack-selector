@@ -36,27 +36,19 @@ const SoundController = {
         });
     },
     playJackpot: function() {
-        if(isMuted) return;
-        const audio = new Audio('sounds/jackpot.mp3');
-        audio.volume = 0.7;
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                if(!this.ctx) return;
-                const now = this.ctx.currentTime;
-                [1200, 1500, 1800, 1200, 1500, 1800, 2400].forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'square'; osc.frequency.value = freq;
-                    const t = now + (i * 0.1);
-                    gain.gain.setValueAtTime(0, t);
-                    gain.gain.linearRampToValueAtTime(0.1, t + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(t); osc.stop(t + 0.1);
-                });
-            });
-        }
+        if(isMuted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [1200, 1500, 1800, 1200, 1500, 1800, 2400].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'square'; osc.frequency.value = freq;
+            const t = now + (i * 0.1);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.1, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(t); osc.stop(t + 0.1);
+        });
     }
 };
 

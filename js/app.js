@@ -149,14 +149,37 @@ function finalize(finalTrack) {
 
     stage.classList.remove('rolling'); 
     title.innerText = finalTrack.name;
-    imgTarget.innerHTML = `<img src="${finalTrack.img}" alt="${finalTrack.name}">`;
 
-    meta.innerHTML = `
-        <span class="badge">${finalTrack.surface}</span> <span class="badge">${finalTrack.distance}</span>
-        <span class="badge">${finalTrack.category}</span> <span class="badge">${finalTrack.fullDirection}</span>
-        <span class="badge highlight">Max: ${finalTrack.maxRunners}</span>
-    `;
-    cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
+    const img = document.createElement('img');
+    img.src = finalTrack.img;
+    img.alt = finalTrack.name;
+    imgTarget.replaceChildren(img);
+
+    meta.textContent = '';
+    const badgeData = [
+        { text: finalTrack.surface },
+        { text: finalTrack.distance },
+        { text: finalTrack.category },
+        { text: finalTrack.fullDirection },
+        { text: `Max: ${finalTrack.maxRunners}`, highlight: true }
+    ];
+    for (const b of badgeData) {
+        const span = document.createElement('span');
+        span.className = `badge${b.highlight ? ' highlight' : ''}`;
+        span.textContent = b.text;
+        meta.appendChild(span);
+    }
+
+    cond.textContent = '';
+    const seasonSpan = document.createElement('span');
+    seasonSpan.className = 'cond-hl';
+    seasonSpan.textContent = finalSeason;
+    cond.appendChild(seasonSpan);
+    cond.appendChild(document.createTextNode(' with '));
+    const weatherSpan = document.createElement('span');
+    weatherSpan.className = 'cond-hl';
+    weatherSpan.textContent = finalWeather;
+    cond.appendChild(weatherSpan);
 
     stage.classList.add('show');
 
