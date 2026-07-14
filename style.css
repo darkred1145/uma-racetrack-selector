@@ -964,6 +964,7 @@ body {
 
 	#rollBtn {
 		order: 2;
+		width: calc(100% - 24px);
 		margin: 8px 12px;
 		padding: 14px;
 		font-size: 1.1rem;
@@ -979,6 +980,7 @@ body {
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: calc(100% - 24px);
 		gap: 6px;
 		padding: 10px 12px;
 		margin: 0 12px 4px;
@@ -1011,6 +1013,7 @@ body {
 		order: 4;
 		display: none;
 		flex-direction: column;
+		width: calc(100% - 24px);
 		gap: 8px;
 		margin: 0 12px;
 		padding: 12px;
