@@ -249,11 +249,14 @@ function finalize(finalTrack) {
     cond.innerHTML = `<span class="cond-hl">${finalSeason}</span> with <span class="cond-hl">${finalWeather}</span>`;
     
     if (historyDisp) {
+        historyDisp.className = 'track-history';
         if (typeof trackHistory !== 'undefined' && trackHistory[finalTrack.name]) {
             const uses = trackHistory[finalTrack.name];
-            historyDisp.innerHTML = `📜 <strong>Tournament History:</strong> Previously used in ${uses.join(', ')}`;
+            historyDisp.innerHTML = `<strong>Tournament History:</strong> Previously used in ${uses.join(', ')}`;
+            historyDisp.classList.add('repeat');
         } else {
-            historyDisp.innerHTML = `🌟 <strong>Tournament History:</strong> First time running this track!`;
+            historyDisp.innerHTML = `<strong>Tournament History:</strong> First time running this track!`;
+            historyDisp.classList.add('new');
         }
         historyDisp.style.display = 'block';
     }
@@ -359,25 +362,29 @@ function copyToClipboard() {
 
 // --- VISUALS & EASTER EGGS ---
 function fireConfetti() {
-    const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.getElementById('confetti');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-    const particles = Array.from({length: 80}, () => ({
+    const particles = Array.from({length: 60}, () => ({
         x: window.innerWidth/2, y: window.innerHeight/2, r: Math.random()*6+2,
-        dx: (Math.random()-0.5)*25, dy: (Math.random()-0.5)*25, color: color, life: 100
+        dx: (Math.random()-0.5)*20, dy: (Math.random()-0.5)*20, color: color, life: 80
     }));
+    let animId;
     function animate() {
         ctx.clearRect(0,0,canvas.width,canvas.height); let active = false;
-        particles.forEach(p => {
-            if(p.life > 0) {
-                active = true; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-                ctx.fillStyle = p.color; ctx.globalAlpha = p.life/100; ctx.fill();
-                p.x+=p.dx; p.y+=p.dy; p.dy+=0.5; p.life--; p.r*=0.96;
-            }
-        });
-        if(active) requestAnimationFrame(animate); else ctx.clearRect(0,0,canvas.width,canvas.height);
+        for (const p of particles) {
+            if(p.life <= 0) continue;
+            active = true;
+            ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.life/80; ctx.fill();
+            p.x+=p.dx; p.y+=p.dy; p.dy+=0.4; p.life--; p.r*=0.96;
+        }
+        if(active) animId = requestAnimationFrame(animate);
     }
-    animate();
+    animId = requestAnimationFrame(animate);
 }
 
 let keyBuffer = "";
@@ -526,6 +533,15 @@ document.addEventListener('DOMContentLoaded', () => {
     checkStartupEvent();
     populateSearchDatalist();
 
+    // Set default datetime to next hour
+    const timeInput = document.getElementById('tourneyTime');
+    if(timeInput && !timeInput.value) {
+        const next = new Date();
+        next.setHours(next.getHours() + 1, 0, 0, 0);
+        const pad = (n) => String(n).padStart(2, '0');
+        timeInput.value = `${next.getFullYear()}-${pad(next.getMonth()+1)}-${pad(next.getDate())}T${pad(next.getHours())}:00`;
+    }
+
     const rollBtn = document.getElementById('rollBtn');
     if(rollBtn) rollBtn.addEventListener('click', startRoll);
     const muteBtn = document.getElementById('muteBtn');
@@ -534,19 +550,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if(copyBtn) copyBtn.addEventListener('click', copyToClipboard);
 
     const manualSelectBtn = document.getElementById('manualSelectBtn');
-    if(manualSelectBtn) manualSelectBtn.addEventListener('click', triggerManualSearch);
+    if(manualSelectBtn) {
+        manualSelectBtn.addEventListener('click', triggerManualSearch);
+        const searchInput = document.getElementById('trackSearch');
+        if(searchInput) {
+            searchInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') triggerManualSearch(); });
+            searchInput.addEventListener('input', () => { manualSelectBtn.disabled = !searchInput.value.trim(); });
+            manualSelectBtn.disabled = !searchInput.value.trim();
+        }
+    }
     
     // Modal Logic
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsModal = document.getElementById('settingsModal');
     const closeSettings = document.getElementById('closeSettings');
+    let lastFocusedEl = null;
     
     if(settingsBtn && settingsModal) {
-        settingsBtn.addEventListener('click', () => settingsModal.classList.add('show'));
-        closeSettings.addEventListener('click', () => settingsModal.classList.remove('show'));
-        window.addEventListener('click', (e) => {
-            if(e.target === settingsModal) settingsModal.classList.remove('show');
+        settingsBtn.addEventListener('click', () => {
+            lastFocusedEl = document.activeElement;
+            settingsModal.classList.add('show');
+            closeSettings.focus();
         });
+        closeSettings.addEventListener('click', closeModal);
+        settingsModal.addEventListener('click', (e) => {
+            if(e.target === settingsModal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape' && settingsModal.classList.contains('show')) closeModal();
+        });
+    }
+    
+    function closeModal() {
+        settingsModal.classList.remove('show');
+        if(lastFocusedEl) { lastFocusedEl.focus(); lastFocusedEl = null; }
     }
 
     // Auto-adjust training time limit on Scenario change

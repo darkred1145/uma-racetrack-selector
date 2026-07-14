@@ -14,29 +14,15 @@
     <meta property="og:image" content="https://darkred1145.github.io/uma-racetrack-selector/social-preview.png">
 
     <meta name="theme-color" content="#10b981">
-    
-    <style>
-        /* Modal & Search Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-        .modal.show { display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: var(--surface, #1e1e1e); padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; border: 1px solid var(--primary, #10b981); color: #fff; max-height: 90vh; overflow-y: auto; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close-btn:hover { color: #fff; }
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .settings-grid .control-group { margin-bottom: 0; }
-        .full-width { grid-column: 1 / -1; }
-        .search-container { display: flex; gap: 5px; }
-        .search-btn { background: var(--primary, #10b981); border: none; padding: 5px 10px; border-radius: 4px; color: #fff; cursor: pointer; font-weight: bold; }
-    </style>
 </head>
 <body>
 
 <canvas id="confetti"></canvas>
 
-<div id="settingsModal" class="modal">
+<div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
-        <span class="close-btn" id="closeSettings">&times;</span>
-        <h2>Tournament Settings ⚙️</h2>
+        <button class="close-btn" id="closeSettings" aria-label="Close settings">&times;</button>
+        <h2 id="modalTitle">Tournament Settings</h2>
         
         <div class="settings-grid">
             <div class="control-group">
@@ -94,21 +80,21 @@
                 <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                     <div style="flex: 1;">
                         <span style="font-size: 0.75rem;">Training Time (mins)</span>
-                        <input type="number" id="trainingTimeLimit" value="55" class="theme-select">
+                        <input type="number" id="trainingTimeLimit" value="55" min="1" max="180" class="theme-select">
                     </div>
                     <div style="flex: 1;">
                         <span style="font-size: 0.75rem;">Ban/Draft Phase (mins)</span>
-                        <input type="number" id="banLength" value="5" class="theme-select">
+                        <input type="number" id="banLength" value="5" min="1" max="60" class="theme-select">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <span style="font-size: 0.75rem;">Max Dupes</span>
-                        <input type="number" id="maxDupes" value="2" class="theme-select">
+                        <input type="number" id="maxDupes" value="2" min="0" max="6" class="theme-select">
                     </div>
                     <div style="flex: 1;">
                         <span style="font-size: 0.75rem;">Max Same Style</span>
-                        <input type="number" id="maxStyle" value="2" class="theme-select">
+                        <input type="number" id="maxStyle" value="2" min="0" max="6" class="theme-select">
                     </div>
                 </div>
             </div>
@@ -195,7 +181,7 @@
         
         <div class="conditions" id="resultCond"></div>
 
-        <div id="trackHistoryDisplay" class="track-history" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #eab308; border-radius: 8px; font-size: 0.95em; color: #fef08a; display: none; text-align: center;"></div>
+        <div id="trackHistoryDisplay" class="track-history"></div>
 
     </main>
 </div>
