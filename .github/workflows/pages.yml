@@ -20,7 +20,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Validate track data
+        run: node scripts/validate.js
+
+  deploy:
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,3 +47,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Smoke test
+        run: |
+          sleep 10
+          curl -sfL -o /dev/null "${{ steps.deployment.outputs.page_url }}" || {
+            echo "Smoke test failed: site not reachable"
+            exit 1
+          }
+          echo "✓ Site reachable at ${{ steps.deployment.outputs.page_url }}"
