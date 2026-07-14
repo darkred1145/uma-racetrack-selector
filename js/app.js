@@ -255,10 +255,12 @@ function fireConfetti() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const style = getComputedStyle(document.documentElement);
+    const colors = [style.getPropertyValue('--primary').trim(), style.getPropertyValue('--accent').trim(), '#fbbf24', '#fff'];
     const particles = Array.from({length: 60}, () => ({
         x: window.innerWidth/2, y: window.innerHeight/2, r: Math.random()*6+2,
-        dx: (Math.random()-0.5)*20, dy: (Math.random()-0.5)*20, color: color, life: 80
+        dx: (Math.random()-0.5)*20, dy: (Math.random()-0.5)*20,
+        color: colors[Math.floor(Math.random() * colors.length)], life: 80
     }));
     let animId;
     function animate() {
