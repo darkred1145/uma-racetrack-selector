@@ -1,5 +1,8 @@
 # Uma Musume Track Selector
 
+![GitHub last commit](https://img.shields.io/github/last-commit/darkred1145/uma-racetrack-selector)
+![GitHub Pages](https://img.shields.io/github/deployments/darkred1145/uma-racetrack-selector/github-pages?label=deploy)
+
 A fan tool to randomize racetracks and conditions. Roll a random track from JRA and NAR races with seasonal weather.
 
 ## Features
