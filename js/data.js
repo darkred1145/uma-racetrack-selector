@@ -415,4 +415,85 @@ const rawData = [
 		id: "Morioka Dirt 2000m (Medium) Left Max Runners:16",
 		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10105/11504.png",
 	},
+	// --- upcoming tracks (hidden by default, toggle in settings) ---
+	{
+		id: "Sapporo Dirt 1000m (Sprint) Right Max Runners:14",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10106.png",
+		upcoming: true,
+	},
+	{
+		id: "Sapporo Dirt 2400m (Medium) Right Max Runners:14",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10001/10108.png",
+		upcoming: true,
+	},
+	{
+		id: "Hakodate Dirt 1000m (Sprint) Right Max Runners:14",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10206.png",
+		upcoming: true,
+	},
+	{
+		id: "Hakodate Dirt 2400m (Medium) Right Max Runners:14",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10002/10208.png",
+		upcoming: true,
+	},
+	{
+		id: "Fukushima Dirt 2400m (Medium) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10004/10407.png",
+		upcoming: true,
+	},
+	{
+		id: "Niigata Dirt 2500m (Long) Left Max Runners:15",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10003/10312.png",
+		upcoming: true,
+	},
+	{
+		id: "Nakayama Dirt 2400m (Medium) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10510.png",
+		upcoming: true,
+	},
+	{
+		id: "Nakayama Dirt 2500m (Long) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10005/10511.png",
+		upcoming: true,
+	},
+	{
+		id: "Tokyo Dirt 2400m (Medium) Left Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10006/10613.png",
+		upcoming: true,
+	},
+	{
+		id: "Chukyo Dirt 1200m (Sprint) Left Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10706.png",
+		upcoming: true,
+	},
+	{
+		id: "Chukyo Dirt 1900m (Medium) Left Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10007/10709.png",
+		upcoming: true,
+	},
+	{
+		id: "Hanshin Dirt 1200m (Sprint) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10009/10910.png",
+		upcoming: true,
+	},
+	{
+		id: "Kokura Dirt 1000m (Sprint) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11005.png",
+		upcoming: true,
+	},
+	{
+		id: "Kokura Dirt 2400m (Medium) Right Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10010/11007.png",
+		upcoming: true,
+	},
+	{
+		id: "Longchamp Turf 2400m (Medium) Left Max Runners:18",
+		img: "https://media.gametora.com/umamusume/racetrack/history/pre_2nd_anni/full/en/10201/11203.png",
+		upcoming: true,
+	},
+	{
+		id: "SantaAnita Turf 2000m (Medium) Left Max Runners:16",
+		img: "https://media.gametora.com/umamusume/racetrack/full/en/10202/11612.png",
+		upcoming: true,
+	},
 ];

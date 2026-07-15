@@ -88,7 +88,7 @@ function parseTracks(data) {
 		if (dirMatch) fullDirection = dirMatch[0];
 		const maxRunners = (line.match(/Max Runners:\s*(\d+)/) || [])[1];
 		return {
-			name: `${location} ${surface} ${distance}`,
+			name: `${location === "SantaAnita" ? "Santa Anita" : location} ${surface} ${distance}`,
 			surface,
 			distance,
 			category,
@@ -99,8 +99,9 @@ function parseTracks(data) {
 					? "Stretch"
 					: "Right",
 			fullDirection,
-			maxRunners: maxRunners ? parseInt(maxRunners) : 16,
+			maxRunners: maxRunners ? parseInt(maxRunners, 10) : 16,
 			img: entry.img,
+			upcoming: entry.upcoming || false,
 		};
 	});
 }
@@ -134,13 +135,17 @@ function startRoll() {
 	const cat = getCheckedValues("catFilter");
 	const dir = getCheckedValues("dirFilter");
 	const caps = getCheckedValues("capFilter").map(Number);
+	const showUpcoming = document.getElementById("upcomingToggle")
+		? document.getElementById("upcomingToggle").checked
+		: false;
 
 	const pool = allTracks.filter(
 		(t) =>
 			terrain.includes(t.surface) &&
 			cat.includes(t.category) &&
 			dir.some((d) => t.direction.includes(d)) &&
-			caps.includes(t.maxRunners),
+			caps.includes(t.maxRunners) &&
+			(showUpcoming || !t.upcoming),
 	);
 
 	if (pool.length === 0) {
@@ -538,6 +543,9 @@ function saveState() {
 		dir: getCheckedValues("dirFilter"),
 		caps: getCheckedValues("capFilter"),
 		muted: isMuted,
+		upcoming: document.getElementById("upcomingToggle")
+			? document.getElementById("upcomingToggle").checked
+			: false,
 		unlocked: unlockedThemes,
 		weatherMode: document.getElementById("weatherMode")
 			? document.getElementById("weatherMode").value
@@ -572,6 +580,11 @@ function loadState() {
 		};
 		setSelect("themeSelect", state.theme);
 		setSelect("weatherMode", state.weatherMode);
+
+		const upcomingToggle = document.getElementById("upcomingToggle");
+		if (upcomingToggle && state.upcoming !== undefined) {
+			upcomingToggle.checked = state.upcoming;
+		}
 
 		if (state.theme) changeTheme();
 
